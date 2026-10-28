@@ -4,6 +4,7 @@ const thread = $("#thread");
 const savingsEl = $("#savings");
 const moneyEl = $("#savings-money");
 const timeEl = $("#savings-time");
+const deltaEl = $("#savings-delta");
 const subsEl = $("#subscriptions");
 const deadlinesEl = $("#deadlines");
 const recordedBadge = $("#recorded-badge");
@@ -11,10 +12,26 @@ const skillsDrawer = $("#skills-drawer");
 const skillsBody = $("#skills-body");
 const backdrop = $("#drawer-backdrop");
 
+/** @type {number | null} */
+let lastSavingsCents = null;
+/** @type {number | null} */
+let lastEventId = null;
+/** @type {Array<{id:number, merchant:string, status:string, amount_monthly_cents:number}>} */
+let subscriptionsCache = [];
+/** @type {Array<{id:number, name:string, merchant:string}>} */
+let skillsCache = [];
+
 function money(cents) {
   const sign = cents < 0 ? "-" : "";
   const abs = Math.abs(cents);
   return `${sign}$${Math.floor(abs / 100)}.${String(abs % 100).padStart(2, "0")}`;
+}
+
+function moneyWhole(cents) {
+  const sign = cents < 0 ? "-" : "";
+  const abs = Math.abs(cents);
+  if (abs % 100 === 0) return `${sign}$${abs / 100}`;
+  return money(cents);
 }
 
 function hours(minutes) {
@@ -33,10 +50,18 @@ function appendMessage(role, text) {
 }
 
 function actionLabel(action) {
-  if (action === "approve") return "Send";
+  if (action === "approve") return "Send claim";
   if (action === "reject") return "Reject";
   if (action === "edit") return "Edit";
+  if (action === "Confirm" || action === "cancel") return "Cancel subscription";
+  if (action === "Prepare claim") return "Prepare claim";
   return action;
+}
+
+function skillLabel(skillId) {
+  if (skillId == null) return "saved skill";
+  const skill = skillsCache.find((s) => Number(s.id) === Number(skillId));
+  return skill?.name || `skill #${skillId}`;
 }
 
 function renderCard(card) {
@@ -47,6 +72,8 @@ function renderCard(card) {
   if (card.subscription_id != null) el.dataset.subscriptionId = String(card.subscription_id);
   if (card.merchant) el.dataset.merchant = String(card.merchant);
   if (card.purchase_id != null) el.dataset.purchaseId = String(card.purchase_id);
+  if (card.path) el.dataset.path = String(card.path);
+  if (card.skill_id != null) el.dataset.skillId = String(card.skill_id);
 
   const title = document.createElement("h3");
   title.textContent = card.title || card.type || "Action";
@@ -85,20 +112,29 @@ function renderCard(card) {
 
   const actions = document.createElement("div");
   actions.className = "actions";
+  let hasSend = false;
   for (const action of card.actions || []) {
     const btn = document.createElement("button");
     const label = actionLabel(action);
     btn.textContent = label;
     btn.type = "button";
-    if (label === "Send" || action === "Confirm" || action === "Prepare claim") {
+    if (label === "Send claim" || label === "Cancel subscription" || action === "Prepare claim") {
       btn.className = "primary";
     } else if (label === "Reject") {
       btn.className = "danger";
     } else {
       btn.className = "secondary";
     }
+    if (label === "Send claim") hasSend = true;
     btn.addEventListener("click", () => onCardAction(card, action, el));
     actions.appendChild(btn);
+  }
+  if (hasSend) {
+    const note = document.createElement("p");
+    note.className = "send-note";
+    note.textContent =
+      "Send claim posts to a test outbox (mock merchant inbox), not a real company.";
+    actions.appendChild(note);
   }
   if ((card.actions || []).length) el.appendChild(actions);
 
@@ -110,7 +146,7 @@ async function onCardAction(card, action, el) {
   try {
     if (card.type === "claim_draft" && action === "approve") {
       await api("POST", `/api/claims/${card.claim_id}/approve`);
-      appendMessage("agent", "Claim sent to the merchant outbox.");
+      appendMessage("agent", "Claim sent to the test merchant outbox.");
       el.remove();
       await refreshSavings();
       return;
@@ -130,20 +166,19 @@ async function onCardAction(card, action, el) {
       return;
     }
     if (card.type === "cancel_plan" && card.subscription_id) {
-      if (action === "Confirm" && card.path && card.path !== "pending") {
+      if (
+        (action === "Confirm" || action === "cancel") &&
+        card.path &&
+        card.path !== "pending"
+      ) {
         await api("POST", `/api/subscriptions/${card.subscription_id}/cancel/confirm`);
         appendMessage("agent", `Cancelled ${card.merchant || "subscription"}.`);
         el.remove();
       } else {
-        const started = await api("POST", `/api/subscriptions/${card.subscription_id}/cancel`);
-        if (started.card) {
-          const next = {
-            ...started.card,
-            subscription_id: started.card.subscription_id ?? card.subscription_id,
-          };
-          el.remove();
-          renderCard(next);
-        }
+        await startCancelFlow(card.subscription_id, {
+          replaceEl: el,
+          announceSkill: true,
+        });
       }
       await refreshAll();
       return;
@@ -152,6 +187,77 @@ async function onCardAction(card, action, el) {
   } catch (err) {
     appendMessage("agent", err.message || String(err));
   }
+}
+
+/**
+ * Start cancel for a subscription; shows skill reuse line when path is skill.
+ * @returns {Promise<object>}
+ */
+async function startCancelFlow(subscriptionId, { replaceEl = null, announceSkill = true } = {}) {
+  const started = await api("POST", `/api/subscriptions/${subscriptionId}/cancel`);
+  if (announceSkill && started.path === "skill") {
+    appendMessage(
+      "agent",
+      `I already know how (skill ${skillLabel(started.skill_id)}).`
+    );
+  }
+  if (started.card) {
+    const next = {
+      ...started.card,
+      subscription_id: started.card.subscription_id ?? subscriptionId,
+      title: started.card.title || `Cancel ${started.merchant}?`,
+      body:
+        started.card.body ||
+        (started.path === "skill"
+          ? "Confirm to replay the saved cancel steps."
+          : "Confirm to run the planned cancel steps."),
+      actions: started.card.actions || ["Confirm"],
+    };
+    if (replaceEl) replaceEl.remove();
+    renderCard(next);
+  }
+  return started;
+}
+
+async function cancelSubscriptionById(subscriptionId, merchant) {
+  const existing = thread.querySelector(
+    `.card[data-type='cancel_plan'][data-subscription-id='${subscriptionId}']`
+  );
+  await startCancelFlow(subscriptionId, {
+    replaceEl: existing,
+    announceSkill: true,
+  });
+  if (merchant) {
+    appendMessage(
+      "agent",
+      `Ready to cancel ${merchant}. Press Cancel subscription on the card to confirm.`
+    );
+  }
+  await refreshAll();
+}
+
+async function cancelSubscriptionByMerchant(merchantQuery) {
+  const needle = merchantQuery.trim().toLowerCase();
+  if (!subscriptionsCache.length) await refreshSubscriptions();
+  const sub = subscriptionsCache.find(
+    (s) =>
+      s.status !== "cancelled" &&
+      String(s.merchant || "").toLowerCase() === needle
+  );
+  if (!sub) {
+    const active = subscriptionsCache
+      .filter((s) => s.status !== "cancelled")
+      .map((s) => s.merchant)
+      .join(", ");
+    appendMessage(
+      "agent",
+      active
+        ? `No active subscription named “${merchantQuery}”. Active: ${active}.`
+        : `No active subscription named “${merchantQuery}”.`
+    );
+    return;
+  }
+  await cancelSubscriptionById(sub.id, sub.merchant);
 }
 
 async function api(method, path, body) {
@@ -169,31 +275,86 @@ async function api(method, path, body) {
   return data;
 }
 
+function showSavingsDelta(event) {
+  if (!deltaEl || !event) return;
+  const kind =
+    event.kind === "cancel"
+      ? `${event.merchant} cancellation`
+      : event.kind === "refund"
+        ? `${event.merchant} refund`
+        : event.merchant || "savings";
+  deltaEl.textContent = `+${moneyWhole(event.amount_cents)} ${kind}`;
+  deltaEl.classList.remove("hidden");
+}
+
 async function refreshSavings() {
   const data = await api("GET", "/api/savings");
-  const prev = moneyEl.textContent;
-  moneyEl.textContent = money(data.amount_cents || 0);
+  const cents = data.amount_cents || 0;
+  const events = data.events || [];
+  const prevCents = lastSavingsCents;
+  const prevEventId = lastEventId;
+  const newest = events.length ? events[events.length - 1] : null;
+
+  moneyEl.textContent = money(cents);
   timeEl.textContent = hours(data.time_saved_min || 0);
-  if (prev && prev !== moneyEl.textContent) {
+
+  if (prevCents != null && cents > prevCents && newest && newest.id !== prevEventId) {
+    showSavingsDelta(newest);
     savingsEl.classList.remove("bump");
     void savingsEl.offsetWidth;
     savingsEl.classList.add("bump");
   }
+
+  lastSavingsCents = cents;
+  lastEventId = newest ? newest.id : null;
 }
 
 async function refreshSubscriptions() {
   const data = await api("GET", "/api/subscriptions");
+  subscriptionsCache = data.subscriptions || [];
   subsEl.innerHTML = "";
-  for (const sub of data.subscriptions || []) {
+  for (const sub of subscriptionsCache) {
     const li = document.createElement("li");
     const unused = sub.unused || sub.status === "flagged";
     if (unused) li.classList.add("flagged");
-    li.innerHTML = `<strong>${sub.merchant}</strong>
-      <span class="meta">${money(sub.amount_monthly_cents)}/mo · ${sub.status}${unused ? " · unused" : ""}</span>`;
+    const meta = document.createElement("span");
+    meta.className = "meta";
+    meta.textContent = `${money(sub.amount_monthly_cents)}/mo · ${sub.status}${
+      unused ? " · unused" : ""
+    }`;
+
+    const strong = document.createElement("strong");
+    strong.textContent = sub.merchant;
+    li.appendChild(strong);
+    li.appendChild(meta);
+
+    if (sub.status !== "cancelled") {
+      const row = document.createElement("div");
+      row.className = "row-actions";
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.textContent = "Cancel subscription";
+      btn.addEventListener("click", async () => {
+        btn.disabled = true;
+        try {
+          appendMessage("user", `cancel ${sub.merchant}`);
+          await cancelSubscriptionById(sub.id, sub.merchant);
+        } catch (err) {
+          appendMessage("agent", err.message || String(err));
+          btn.disabled = false;
+        }
+      });
+      row.appendChild(btn);
+      li.appendChild(row);
+    }
     subsEl.appendChild(li);
   }
   if (!subsEl.children.length) {
-    subsEl.innerHTML = "<li><span class=\"meta\">None yet</span></li>";
+    const li = document.createElement("li");
+    li.className = "empty-hint";
+    li.textContent =
+      "No subscriptions yet. Ingest a bank statement to discover recurring charges.";
+    subsEl.appendChild(li);
   }
 }
 
@@ -208,14 +369,19 @@ async function refreshDeadlines() {
     deadlinesEl.appendChild(li);
   }
   if (!deadlinesEl.children.length) {
-    deadlinesEl.innerHTML = "<li><span class=\"meta\">No open deadlines</span></li>";
+    const li = document.createElement("li");
+    li.className = "empty-hint";
+    li.textContent =
+      "No open deadlines. After a purchase is ingested, run a scan to surface refund windows.";
+    deadlinesEl.appendChild(li);
   }
 }
 
 async function refreshSkills() {
   const data = await api("GET", "/api/skills");
+  skillsCache = data.skills || [];
   skillsBody.innerHTML = "";
-  for (const skill of data.skills || []) {
+  for (const skill of skillsCache) {
     const block = document.createElement("div");
     block.className = "skill-block";
     const steps = (skill.steps || [])
@@ -227,7 +393,8 @@ async function refreshSkills() {
     skillsBody.appendChild(block);
   }
   if (!skillsBody.children.length) {
-    skillsBody.innerHTML = "<p class=\"meta\">No skills learned yet.</p>";
+    skillsBody.innerHTML =
+      '<p class="empty-hint-block">No skills learned yet. Cancel a subscription once and Clawback will save the steps here.</p>';
   }
 }
 
@@ -242,6 +409,13 @@ async function refreshAll() {
 
 async function sendChat(message) {
   if (message) appendMessage("user", message);
+
+  const cancelMatch = (message || "").trim().match(/^cancel\s+(.+)$/i);
+  if (cancelMatch) {
+    await cancelSubscriptionByMerchant(cancelMatch[1]);
+    return;
+  }
+
   const data = await api("POST", "/api/chat", { message: message || "" });
   if (data.reply) appendMessage("agent", data.reply);
   for (const card of data.cards || []) renderCard(card);

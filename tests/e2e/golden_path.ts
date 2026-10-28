@@ -25,41 +25,23 @@ export async function resetDemo(request: APIRequestContext) {
 async function cancelMerchant(page: Page, merchant: string) {
   const pending = page
     .locator(`.card[data-type='cancel_plan'][data-merchant='${merchant}']`)
-    .filter({ hasText: "Confirm" })
     .last();
   await expect(pending).toBeVisible({ timeout: 15_000 });
-  await pending.getByRole("button", { name: "Confirm" }).click();
+  await pending.getByRole("button", { name: "Cancel subscription" }).click();
 
   const plan = page
     .locator(`.card[data-type='cancel_plan'][data-merchant='${merchant}']`)
     .last();
   await expect(plan).toBeVisible({ timeout: 15_000 });
-  await plan.getByRole("button", { name: "Confirm" }).click();
+  await plan.getByRole("button", { name: "Cancel subscription" }).click();
   await expect(page.getByText(`Cancelled ${merchant}`)).toBeVisible({
     timeout: 15_000,
   });
 }
 
-async function cancelFitPulseViaApi(request: APIRequestContext) {
-  const subs = await request.get("/api/subscriptions");
-  expect(subs.ok()).toBeTruthy();
-  const body = await subs.json();
-  const fit = (body.subscriptions || []).find(
-    (s: { merchant: string; status: string }) =>
-      s.merchant === "FitPulse" && s.status !== "cancelled"
-  );
-  expect(fit).toBeTruthy();
-  const start = await request.post(`/api/subscriptions/${fit.id}/cancel`);
-  expect(start.ok()).toBeTruthy();
-  const confirm = await request.post(
-    `/api/subscriptions/${fit.id}/cancel/confirm`
-  );
-  expect(confirm.ok()).toBeTruthy();
-}
-
 /**
  * Golden Path against a recorded-mode server: $96 → cancels + claim → $847.
- * FitPulse is cancelled via API (not flagged unused, so no cancel card).
+ * FitPulse is active (not unused); cancelled via chat “cancel FitPulse” (skill path).
  */
 export async function runGoldenPath(
   page: Page,
@@ -97,7 +79,7 @@ export async function runGoldenPath(
   await cancelMerchant(page, "StreamFlix");
   await cancelMerchant(page, "CloudNest");
 
-  // Deadline alert → Prepare claim → Send (auto-refund in recorded mode).
+  // Deadline alert → Prepare claim → Send claim (auto-refund in recorded mode).
   const deadline = page.locator(".card[data-type='deadline_alert']").first();
   await expect(deadline).toBeVisible({ timeout: 15_000 });
   await deadline.getByRole("button", { name: "Prepare claim" }).click();
@@ -105,9 +87,23 @@ export async function runGoldenPath(
   const claim = page.locator(".card[data-type='claim_draft']").first();
   await expect(claim).toBeVisible({ timeout: 20_000 });
   await expect(claim.locator(".sources a").first()).toBeVisible();
-  await claim.getByRole("button", { name: "Send" }).click();
+  await claim.getByRole("button", { name: "Send claim" }).click();
 
-  await cancelFitPulseViaApi(request);
+  // FitPulse is active (not unused); cancel via chat skill path.
+  await page.locator("#chat-input").fill("cancel FitPulse");
+  await page.locator("#chat-form").evaluate((form: HTMLFormElement) => form.requestSubmit());
+  await expect(
+    page.getByText(/I already know how \(skill /)
+  ).toBeVisible({ timeout: 15_000 });
+  const fitCard = page
+    .locator(`.card[data-type='cancel_plan'][data-merchant='FitPulse']`)
+    .last();
+  await expect(fitCard).toBeVisible({ timeout: 15_000 });
+  await fitCard.getByRole("button", { name: "Cancel subscription" }).click();
+  await expect(page.getByText("Cancelled FitPulse")).toBeVisible({
+    timeout: 15_000,
+  });
+
   await page.reload();
   await expect(page.locator("#savings-money")).toHaveText("$847.00", {
     timeout: 20_000,

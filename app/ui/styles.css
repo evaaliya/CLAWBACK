@@ -82,16 +82,21 @@ body {
 .savings {
   display: grid;
   grid-template-columns: auto auto;
-  grid-template-rows: auto auto;
+  grid-template-areas:
+    "label label"
+    "caption caption"
+    "money time"
+    "delta delta";
   column-gap: 0.75rem;
   row-gap: 0.1rem;
   padding: 0.55rem 0.85rem;
   background: var(--panel);
   backdrop-filter: blur(8px);
   border: 1px solid var(--line);
-  border-radius: 999px;
+  border-radius: 18px;
   box-shadow: var(--shadow);
   transition: transform 0.25s ease, background 0.35s ease;
+  max-width: 280px;
 }
 
 .savings.bump {
@@ -100,14 +105,21 @@ body {
 }
 
 .savings-label {
-  grid-column: 1 / -1;
+  grid-area: label;
   font-size: 0.7rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--muted);
 }
 
+.savings-caption {
+  grid-area: caption;
+  margin: 0 0 0.15rem;
+  max-width: none;
+}
+
 .savings-money {
+  grid-area: money;
   font-family: var(--mono);
   font-size: 1.15rem;
   font-weight: 500;
@@ -115,10 +127,20 @@ body {
 }
 
 .savings-time {
+  grid-area: time;
   font-family: var(--mono);
   font-size: 0.95rem;
   color: var(--muted);
   align-self: end;
+}
+
+.savings-delta {
+  grid-area: delta;
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  color: var(--accent);
+  font-weight: 500;
+  animation: rise 0.3s ease both;
 }
 
 .badge {
@@ -173,6 +195,49 @@ body {
   flex-direction: column;
   min-height: 520px;
   overflow: hidden;
+}
+
+.how-to {
+  margin: 0;
+  padding: 0.85rem 1rem 0.75rem;
+  border-bottom: 1px solid var(--line);
+  list-style: none;
+  counter-reset: step;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  background: #f7faf8;
+}
+
+.how-to li {
+  counter-increment: step;
+  font-size: 0.84rem;
+  line-height: 1.4;
+  color: var(--muted);
+  padding-left: 1.55rem;
+  position: relative;
+}
+
+.how-to li::before {
+  content: counter(step);
+  position: absolute;
+  left: 0;
+  top: 0.05rem;
+  width: 1.15rem;
+  height: 1.15rem;
+  border-radius: 4px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.how-to strong {
+  color: var(--ink);
+  font-weight: 600;
 }
 
 .thread {
@@ -243,8 +308,17 @@ body {
 .card .actions {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 0.45rem;
   margin-top: 0.25rem;
+}
+
+.card .send-note {
+  flex: 1 1 100%;
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--muted);
+  line-height: 1.35;
 }
 
 .card button {
@@ -313,12 +387,23 @@ body {
 }
 
 .panel h2 {
-  margin: 0 0 0.65rem;
+  margin: 0 0 0.35rem;
   font-size: 0.85rem;
   text-transform: uppercase;
   letter-spacing: 0.07em;
   color: var(--muted);
   font-weight: 600;
+}
+
+.panel-caption {
+  margin: 0 0 0.75rem;
+  font-size: 0.8rem;
+  line-height: 1.4;
+  color: var(--muted);
+}
+
+.drawer-caption {
+  margin: 0 0 0.85rem;
 }
 
 .list {
@@ -343,12 +428,58 @@ body {
   border-color: #fcd34d;
 }
 
+.list li.empty-hint {
+  border-style: dashed;
+  background: #f7faf8;
+  color: var(--muted);
+  font-size: 0.84rem;
+  line-height: 1.4;
+}
+
 .list li .meta {
   display: block;
   margin-top: 0.15rem;
   color: var(--muted);
   font-size: 0.8rem;
   font-family: var(--mono);
+}
+
+.list li .row-actions {
+  margin-top: 0.45rem;
+}
+
+.list li .row-actions button {
+  appearance: none;
+  border: 1px solid var(--line);
+  background: #f3f4f3;
+  color: var(--ink);
+  border-radius: 8px;
+  padding: 0.35rem 0.65rem;
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.list li .row-actions button:hover {
+  border-color: var(--accent);
+  color: var(--accent-ink);
+}
+
+.list li .row-actions button:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.empty-hint-block {
+  margin: 0;
+  padding: 0.75rem;
+  border: 1px dashed var(--line);
+  border-radius: 10px;
+  background: #f7faf8;
+  color: var(--muted);
+  font-size: 0.84rem;
+  line-height: 1.4;
 }
 
 .drawer {

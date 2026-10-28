@@ -19,8 +19,10 @@
       <div class="top-meta">
         <div id="savings" class="savings" aria-live="polite">
           <span class="savings-label">Recovered</span>
+          <span class="panel-caption savings-caption">Money and time Clawback recovered after you approve a cancel or claim.</span>
           <span id="savings-money" class="savings-money">$0</span>
           <span id="savings-time" class="savings-time">0h</span>
+          <span id="savings-delta" class="savings-delta hidden" aria-live="polite"></span>
         </div>
         <span id="recorded-badge" class="badge hidden" title="Using cached model and search responses">recorded</span>
         <button type="button" id="skills-toggle" class="ghost">Skills</button>
@@ -29,9 +31,14 @@
 
     <main class="layout">
       <section class="chat-pane" aria-label="Chat">
+        <ol class="how-to" aria-label="How to use Clawback">
+          <li><strong>Find</strong> — Clawback flags unused subscriptions and closing refund windows.</li>
+          <li><strong>Review</strong> — open the action card in chat (or tap Cancel in Subscriptions).</li>
+          <li><strong>Approve</strong> — press Cancel subscription or Send claim; nothing leaves without you.</li>
+        </ol>
         <div id="thread" class="thread"></div>
         <form id="chat-form" class="composer">
-          <input id="chat-input" type="text" placeholder="Ask about subscriptions, deadlines, claims…" autocomplete="off" />
+          <input id="chat-input" type="text" placeholder="Try “cancel FitPulse” or ask about deadlines…" autocomplete="off" />
           <button type="submit">Send</button>
         </form>
       </section>
@@ -39,10 +46,12 @@
       <aside class="side">
         <section class="panel" aria-labelledby="subs-heading">
           <h2 id="subs-heading">Subscriptions</h2>
+          <p class="panel-caption">Recurring charges Clawback found. Unused ones are highlighted; cancel any active plan from here.</p>
           <ul id="subscriptions" class="list"></ul>
         </section>
         <section class="panel" aria-labelledby="deadlines-heading">
           <h2 id="deadlines-heading">Deadlines</h2>
+          <p class="panel-caption">Return and warranty windows that are still open, sorted by urgency.</p>
           <ul id="deadlines" class="list"></ul>
         </section>
       </aside>
@@ -54,6 +63,7 @@
       <h2>Skills</h2>
       <button type="button" id="skills-close" class="ghost">Close</button>
     </div>
+    <p class="panel-caption drawer-caption">Saved cancel playbooks. When one matches, Clawback reuses it in seconds instead of re-planning.</p>
     <div id="skills-body" class="drawer-body"></div>
   </aside>
   <div id="drawer-backdrop" class="backdrop" hidden></div>

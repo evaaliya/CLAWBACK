@@ -1,11 +1,13 @@
-"""GET /subscriptions."""
+"""GET /subscriptions and cancel / confirm endpoints."""
 
 from __future__ import annotations
 
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, HTTPException, Request
 
 from app.db import connect
 from app.ingest.subscriptions import list_subscriptions
+from app.portal.errors import ActionUnavailable, ApprovalRequired
+from app.skill_forge import confirm_cancel, start_cancel
 
 router = APIRouter(tags=["subscriptions"])
 
@@ -19,3 +21,87 @@ def get_subscriptions(request: Request) -> dict:
     finally:
         conn.close()
     return {"subscriptions": subs, "count": len(subs)}
+
+
+@router.post("/subscriptions/{subscription_id}/cancel")
+def post_cancel(subscription_id: int, request: Request) -> dict:
+    settings = request.app.state.settings
+    clock = request.app.state.clock
+    llm = request.app.state.llm
+    conn = connect(settings.database_file())
+    try:
+        try:
+            result = start_cancel(
+                conn,
+                subscription_id=subscription_id,
+                llm=llm,
+                clock=clock,
+                model_ultra=settings.model_ultra,
+            )
+            conn.commit()
+            return result
+        except KeyError as exc:
+            raise HTTPException(
+                status_code=404,
+                detail={"error": {"code": "not_found", "message": str(exc)}},
+            ) from exc
+        except ValueError as exc:
+            raise HTTPException(
+                status_code=409,
+                detail={"error": {"code": "conflict", "message": str(exc)}},
+            ) from exc
+    finally:
+        conn.close()
+
+
+@router.post("/subscriptions/{subscription_id}/cancel/confirm")
+def post_cancel_confirm(subscription_id: int, request: Request) -> dict:
+    settings = request.app.state.settings
+    clock = request.app.state.clock
+    llm = request.app.state.llm
+    conn = connect(settings.database_file())
+    try:
+        try:
+            result = confirm_cancel(
+                conn,
+                subscription_id=subscription_id,
+                llm=llm,
+                clock=clock,
+                model_ultra=settings.model_ultra,
+                minutes_saved=settings.minutes_saved_per_cancel,
+            )
+            conn.commit()
+            return result
+        except KeyError as exc:
+            raise HTTPException(
+                status_code=404,
+                detail={"error": {"code": "not_found", "message": str(exc)}},
+            ) from exc
+        except ApprovalRequired as exc:
+            raise HTTPException(
+                status_code=403,
+                detail={
+                    "error": {
+                        "code": "approval_required",
+                        "message": str(exc),
+                        "merchant": exc.merchant,
+                    }
+                },
+            ) from exc
+        except ActionUnavailable as exc:
+            raise HTTPException(
+                status_code=409,
+                detail={
+                    "error": {
+                        "code": "action_unavailable",
+                        "message": str(exc),
+                    }
+                },
+            ) from exc
+        except ValueError as exc:
+            raise HTTPException(
+                status_code=409,
+                detail={"error": {"code": "conflict", "message": str(exc)}},
+            ) from exc
+    finally:
+        conn.close()

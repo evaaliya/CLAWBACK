@@ -7,8 +7,10 @@ from typing import AsyncIterator
 
 from fastapi import FastAPI
 
+from app.api.deadlines import router as deadlines_router
 from app.api.health import router as health_router
 from app.api.ingest import router as ingest_router
+from app.api.jobs import router as jobs_router
 from app.api.subscriptions import router as subscriptions_router
 from app.clock import clock_from_settings
 from app.config import get_settings
@@ -39,3 +41,5 @@ app = FastAPI(title="Clawback", version="0.0.1", lifespan=lifespan)
 app.include_router(health_router, prefix="/api")
 app.include_router(ingest_router, prefix="/api")
 app.include_router(subscriptions_router, prefix="/api")
+app.include_router(deadlines_router, prefix="/api")
+app.include_router(jobs_router, prefix="/api")

@@ -28,7 +28,7 @@ class Settings(BaseSettings):
     model_ultra: str = "nvidia/Nemotron-3-Ultra-550b-a55b"
 
     tavily_api_key: str = ""
-    policy_jurisdiction: str = ""
+    policy_jurisdiction: str = "US"
 
     database_path: str = "./clawback.db"
     demo_today: str | None = "2026-10-27"

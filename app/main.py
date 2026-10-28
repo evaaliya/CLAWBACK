@@ -13,7 +13,7 @@ from app.api.subscriptions import router as subscriptions_router
 from app.clock import clock_from_settings
 from app.config import get_settings
 from app.db import connect, init_db
-from app.llm import FakeLLM
+from app.llm import build_llm
 from app.search import FakeSearch
 
 
@@ -23,7 +23,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     app.state.settings = settings
     app.state.clock = clock_from_settings(settings.demo_today)
     cache = settings.cache_path()
-    app.state.llm = FakeLLM(cache / "llm") if settings.recorded_mode else FakeLLM()
+    app.state.llm = build_llm(settings)
     app.state.search = (
         FakeSearch(cache / "search") if settings.recorded_mode else FakeSearch()
     )

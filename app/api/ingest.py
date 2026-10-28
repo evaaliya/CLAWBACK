@@ -8,6 +8,7 @@ from fastapi import APIRouter, File, Request, UploadFile
 
 from app.db import connect
 from app.ingest.service import ingest_receipts, ingest_statement
+from app.llm import resolve_model_ids
 
 router = APIRouter(tags=["ingest"])
 
@@ -20,6 +21,7 @@ async def post_statement(
     settings = request.app.state.settings
     clock = request.app.state.clock
     llm = request.app.state.llm
+    models = resolve_model_ids(settings)
 
     if file is not None:
         content = await file.read()
@@ -43,7 +45,7 @@ async def post_statement(
             clock=clock,
             filename=filename,
             usage_path=usage_path if usage_path.exists() else None,
-            model=settings.model_nano or "nano",
+            model=models["nano"],
         )
         conn.commit()
     finally:
@@ -59,6 +61,7 @@ async def post_receipts(
     settings = request.app.state.settings
     clock = request.app.state.clock
     llm = request.app.state.llm
+    models = resolve_model_ids(settings)
 
     items: list[dict] = []
     for upload in files:
@@ -79,7 +82,7 @@ async def post_receipts(
             items,
             llm=llm,
             clock=clock,
-            model=settings.model_nano or "nano",
+            model=models["nano"],
         )
         conn.commit()
     finally:

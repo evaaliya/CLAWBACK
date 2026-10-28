@@ -20,11 +20,12 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
+    # Nebius Token Factory — defaults from docs.tokenfactory.nebius.com + catalog.
     nebius_api_key: str = ""
-    nebius_base_url: str = ""
-    model_nano: str = ""
-    model_super: str = ""
-    model_ultra: str = ""
+    nebius_base_url: str = "https://api.tokenfactory.nebius.com/v1/"
+    model_nano: str = "nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B"
+    model_super: str = "nvidia/nemotron-3-super-120b-a12b"
+    model_ultra: str = "nvidia/Nemotron-3-Ultra-550b-a55b"
 
     tavily_api_key: str = ""
     policy_jurisdiction: str = ""

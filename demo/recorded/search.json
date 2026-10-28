@@ -1,0 +1,15 @@
+{
+  "_note": "FakeSearch recordings for RECORDED_MODE. Keys are exact policy_query strings.",
+  "SoundHub return refund policy US": [
+    {
+      "title": "SoundHub Returns and Refunds (fixture)",
+      "url": "https://example.com/soundhub/returns",
+      "excerpt": "Unused or lightly used items can be returned within 30 days of purchase for a full refund to the original payment method. Contact support with your order number."
+    },
+    {
+      "title": "SoundHub Warranty (fixture)",
+      "url": "https://example.com/soundhub/warranty",
+      "excerpt": "Headphones carry a one-year limited warranty against manufacturing defects."
+    }
+  ]
+}

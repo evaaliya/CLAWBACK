@@ -44,6 +44,9 @@ function renderCard(card) {
   el.className = "card";
   el.dataset.type = card.type || "";
   if (card.claim_id != null) el.dataset.claimId = String(card.claim_id);
+  if (card.subscription_id != null) el.dataset.subscriptionId = String(card.subscription_id);
+  if (card.merchant) el.dataset.merchant = String(card.merchant);
+  if (card.purchase_id != null) el.dataset.purchaseId = String(card.purchase_id);
 
   const title = document.createElement("h3");
   title.textContent = card.title || card.type || "Action";
@@ -130,9 +133,17 @@ async function onCardAction(card, action, el) {
       if (action === "Confirm" && card.path && card.path !== "pending") {
         await api("POST", `/api/subscriptions/${card.subscription_id}/cancel/confirm`);
         appendMessage("agent", `Cancelled ${card.merchant || "subscription"}.`);
+        el.remove();
       } else {
         const started = await api("POST", `/api/subscriptions/${card.subscription_id}/cancel`);
-        if (started.card) renderCard(started.card);
+        if (started.card) {
+          const next = {
+            ...started.card,
+            subscription_id: started.card.subscription_id ?? card.subscription_id,
+          };
+          el.remove();
+          renderCard(next);
+        }
       }
       await refreshAll();
       return;

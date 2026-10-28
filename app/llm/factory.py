@@ -2,9 +2,10 @@
 
 from __future__ import annotations
 
+from pathlib import Path
 from typing import Any
 
-from app.config import Settings
+from app.config import ROOT, Settings
 from app.llm.fake import FakeLLM
 from app.llm.nebius import (
     DEFAULT_BASE_URL,
@@ -13,6 +14,12 @@ from app.llm.nebius import (
     DEFAULT_MODEL_ULTRA,
     NebiusLLM,
 )
+
+
+def recorded_llm_path(settings: Settings | None = None) -> Path:
+    """Golden Path cache: demo/recorded/llm.json (SPEC §9 / T20)."""
+    demo = Path(settings.demo_dir) if settings else ROOT / "demo"
+    return demo / "recorded" / "llm.json"
 
 
 def resolve_model_ids(settings: Settings) -> dict[str, str]:
@@ -24,9 +31,8 @@ def resolve_model_ids(settings: Settings) -> dict[str, str]:
 
 
 def build_llm(settings: Settings) -> Any:
-    cache = settings.cache_path() / "llm"
     if settings.recorded_mode:
-        return FakeLLM(cache)
+        return FakeLLM(recorded_llm_path(settings))
     if settings.nebius_api_key:
         return NebiusLLM(
             api_key=settings.nebius_api_key,

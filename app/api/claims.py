@@ -7,6 +7,7 @@ from pydantic import BaseModel, Field
 
 from app.claim_writer import (
     ApprovalRequired,
+    accept_refund,
     approve_claim,
     prepare_claim,
     reject_claim,
@@ -62,6 +63,26 @@ def post_approve_claim(claim_id: int, request: Request) -> dict:
     try:
         try:
             result = approve_claim(conn, claim_id=claim_id, clock=clock)
+            # Recorded / demo: simulate merchant refund without a live timer
+            # (mock-portal.md — POST refund/accept or recorded-mode timer).
+            if settings.recorded_mode:
+                purchase = conn.execute(
+                    """
+                    SELECT p.merchant FROM claims c
+                    JOIN purchases p ON p.id = c.purchase_id
+                    WHERE c.id = ?
+                    """,
+                    (claim_id,),
+                ).fetchone()
+                if purchase is not None:
+                    refunded = accept_refund(
+                        conn,
+                        merchant=purchase["merchant"],
+                        clock=clock,
+                        minutes_saved=settings.minutes_saved_per_claim,
+                    )
+                    result["refund"] = refunded
+                    _publish("savings.changed", {})
             conn.commit()
             _publish("claim.changed", {"claim_id": claim_id})
         except ApprovalRequired as exc:

@@ -40,18 +40,18 @@ test:
 	$(PYTEST) -v
 
 # Starts the backend in recorded mode, runs Playwright, stops the backend.
-# E2E uses recorded responses so results do not depend on the network.
+# E2E uses demo/recorded responses so results do not depend on the network.
 e2e:
+	@rm -f .e2e.db .e2e.db-wal .e2e.db-shm
 	@RECORDED_MODE=true DATABASE_PATH=./.e2e.db $(PY) -m app.seed
-	@RECORDED_MODE=true DATABASE_PATH=./.e2e.db $(PY) scripts/e2e_seed_claim.py
 	@RECORDED_MODE=true DATABASE_PATH=./.e2e.db $(UVICORN) app.main:app --port $(PORT) > .e2e-server.log 2>&1 & echo $$! > .e2e-server.pid
 	@ok=0; for i in $$(seq 1 30); do \
 		if curl -sf http://127.0.0.1:$(PORT)/api/health >/dev/null; then ok=1; break; fi; \
 		sleep 1; \
 	done; \
-	if [ "$$ok" != "1" ]; then echo "api not ready"; kill `cat .e2e-server.pid` 2>/dev/null; exit 1; fi
+	if [ "$$ok" != "1" ]; then echo "api not ready"; cat .e2e-server.log; kill `cat .e2e-server.pid` 2>/dev/null; exit 1; fi
 	@PLAYWRIGHT_BASE_URL=http://127.0.0.1:$(PORT) npx playwright test; status=$$?; \
-	kill `cat .e2e-server.pid` 2>/dev/null; rm -f .e2e-server.pid .e2e.db; \
+	kill `cat .e2e-server.pid` 2>/dev/null; rm -f .e2e-server.pid .e2e.db .e2e.db-wal .e2e.db-shm; \
 	exit $$status
 
 # Full run plus the T1-T23 report in reports/verify-<timestamp>.md
@@ -64,16 +64,16 @@ verify:
 	echo "=== pytest -> $$JUNIT ==="; \
 	$(PYTEST) -v --junitxml=$$JUNIT; PY_RC=$$?; \
 	echo "=== e2e -> $$PWJSON ==="; \
+	rm -f .e2e.db .e2e.db-wal .e2e.db-shm; \
 	RECORDED_MODE=true DATABASE_PATH=./.e2e.db $(PY) -m app.seed; \
-	RECORDED_MODE=true DATABASE_PATH=./.e2e.db $(PY) scripts/e2e_seed_claim.py; \
 	(RECORDED_MODE=true DATABASE_PATH=./.e2e.db $(UVICORN) app.main:app --port $(PORT) > .e2e-server.log 2>&1 & echo $$! > .e2e-server.pid); \
 	ok=0; for i in $$(seq 1 30); do \
 		if curl -sf http://127.0.0.1:$(PORT)/api/health >/dev/null; then ok=1; break; fi; \
 		sleep 1; \
 	done; \
-	if [ "$$ok" != "1" ]; then echo "api not ready"; kill `cat .e2e-server.pid` 2>/dev/null; exit 1; fi; \
+	if [ "$$ok" != "1" ]; then echo "api not ready"; cat .e2e-server.log; kill `cat .e2e-server.pid` 2>/dev/null; exit 1; fi; \
 	PLAYWRIGHT_BASE_URL=http://127.0.0.1:$(PORT) npx playwright test --reporter=json > $$PWJSON; E2E_RC=$$?; \
-	kill `cat .e2e-server.pid` 2>/dev/null; rm -f .e2e-server.pid .e2e.db; \
+	kill `cat .e2e-server.pid` 2>/dev/null; rm -f .e2e-server.pid .e2e.db .e2e.db-wal .e2e.db-shm; \
 	$(PY) scripts/verify_report.py --junit $$JUNIT --playwright $$PWJSON --out $$OUT \
 		--pytest-rc $$PY_RC --e2e-rc $$E2E_RC; \
 	echo "report: $$OUT"; \

@@ -13,6 +13,7 @@ from fastapi.staticfiles import StaticFiles
 from app.api.chat import router as chat_router
 from app.api.claims import router as claims_router
 from app.api.deadlines import router as deadlines_router
+from app.api.demo import router as demo_router
 from app.api.events import router as events_router
 from app.api.health import router as health_router
 from app.api.ingest import router as ingest_router
@@ -58,6 +59,7 @@ app.include_router(claims_router, prefix="/api")
 app.include_router(savings_router, prefix="/api")
 app.include_router(chat_router, prefix="/api")
 app.include_router(events_router, prefix="/api")
+app.include_router(demo_router, prefix="/api")
 app.include_router(portal_router)
 
 

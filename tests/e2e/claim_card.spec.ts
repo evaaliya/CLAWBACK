@@ -1,9 +1,14 @@
 import { expect, test } from "@playwright/test";
 
-test("e2e_claim_card", async ({ page }) => {
+test("e2e_claim_card", async ({ page, request }) => {
+  // Self-contained: reset + draft claim so order vs golden-path specs does not matter.
+  const reset = await request.post("/api/demo/reset");
+  expect(reset.ok()).toBeTruthy();
+  const seeded = await request.post("/api/demo/seed-claim");
+  expect(seeded.ok()).toBeTruthy();
+
   await page.goto("/");
 
-  // Claim draft card from chat bootstrap (seeded by scripts/e2e_seed_claim.py).
   const card = page.locator(".card[data-type='claim_draft']").first();
   await expect(card).toBeVisible({ timeout: 15_000 });
 

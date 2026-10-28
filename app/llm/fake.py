@@ -32,12 +32,23 @@ class FakeLLM:
         if isinstance(recordings, Path):
             if recordings.is_file():
                 data = json.loads(recordings.read_text(encoding="utf-8"))
-                self._recordings = dict(data)
+                self._recordings = {
+                    k: v for k, v in dict(data).items() if not str(k).startswith("_")
+                }
             elif recordings.is_dir():
-                for path in recordings.glob("*.json"):
-                    self._recordings[path.stem] = json.loads(
-                        path.read_text(encoding="utf-8")
-                    )
+                index = recordings / "llm.json"
+                if index.is_file():
+                    data = json.loads(index.read_text(encoding="utf-8"))
+                    self._recordings = {
+                        k: v
+                        for k, v in dict(data).items()
+                        if not str(k).startswith("_")
+                    }
+                else:
+                    for path in recordings.glob("*.json"):
+                        self._recordings[path.stem] = json.loads(
+                            path.read_text(encoding="utf-8")
+                        )
         else:
             self._recordings = dict(recordings)
 

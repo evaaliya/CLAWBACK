@@ -1,0 +1,90 @@
+{
+  "_note": "FakeLLM recordings for RECORDED_MODE / Golden Path. Keys are recording_key aliases.",
+  "cancel:plan:StreamFlix": {
+    "steps": [
+      {"action": "open_settings", "note": "Settings"},
+      {"action": "open_subscription", "note": "Subscription"},
+      {"action": "manage_plan", "note": "Manage plan"},
+      {"action": "end_plan", "note": "End plan"},
+      {"action": "confirm_cancel", "note": "Requires user confirmation"},
+      {"action": "save_confirmation", "note": "Store confirmation in memory"}
+    ]
+  },
+  "cancel:plan:CloudNest": {
+    "steps": [
+      {"action": "open_settings", "note": "Settings"},
+      {"action": "open_subscription", "note": "Subscription"},
+      {"action": "manage_plan", "note": "Manage plan"},
+      {"action": "end_plan", "note": "End plan"},
+      {"action": "confirm_cancel", "note": "Requires user confirmation"},
+      {"action": "save_confirmation", "note": "Store confirmation in memory"}
+    ]
+  },
+  "claim:draft": {
+    "text": "Please refund my Wireless over-ear headphones SH-700 purchased on 2026-09-30 for 23500 cents (USD). Your policy allows unused items to be returned within 30 days for a full refund.",
+    "citations": [
+      {
+        "title": "SoundHub Returns and Refunds (fixture)",
+        "url": "https://example.com/soundhub/returns",
+        "excerpt": "Unused or lightly used items can be returned within 30 days of purchase for a full refund to the original payment method. Contact support with your order number."
+      }
+    ]
+  },
+  "claim:draft:retry": {
+    "text": "Please refund my Wireless over-ear headphones SH-700 purchased on 2026-09-30 for 23500 cents (USD). Your policy allows unused items to be returned within 30 days for a full refund.",
+    "citations": [
+      {
+        "title": "SoundHub Returns and Refunds (fixture)",
+        "url": "https://example.com/soundhub/returns",
+        "excerpt": "Unused or lightly used items can be returned within 30 days of purchase for a full refund to the original payment method. Contact support with your order number."
+      }
+    ]
+  },
+  "claim:validate": {"ok": true, "reasons": []},
+  "receipt:soundhub-order-48213.txt": {
+    "merchant": "SoundHub",
+    "item": "Wireless over-ear headphones SH-700",
+    "date": "2026-09-30",
+    "amount_cents": 23500,
+    "currency": "USD",
+    "return_deadline": "2026-10-30",
+    "warranty_until": null,
+    "confidence": 0.95
+  },
+  "normalize:DAILYNEWS*DIGITAL SUB 8005550141": {
+    "merchant_norm": "DailyNews",
+    "category": "subscription"
+  },
+  "normalize:STREAMFLIX*MEMBERSHIP 8005550123": {
+    "merchant_norm": "StreamFlix",
+    "category": "subscription"
+  },
+  "normalize:CLOUDNEST STORAGE PLAN": {
+    "merchant_norm": "CloudNest",
+    "category": "subscription"
+  },
+  "normalize:FITPULSE APP SUBSCRIPTION": {
+    "merchant_norm": "FitPulse",
+    "category": "subscription"
+  },
+  "normalize:TUNEBOX MUSIC PREMIUM": {
+    "merchant_norm": "TuneBox",
+    "category": "subscription"
+  },
+  "normalize:SOUNDHUB ONLINE ORDER #48213": {
+    "merchant_norm": "SoundHub",
+    "category": "purchase"
+  },
+  "normalize:GREENMART GROCERY #212": {
+    "merchant_norm": "GreenMart",
+    "category": "other"
+  },
+  "normalize:GREENMART GROCERY #305": {
+    "merchant_norm": "GreenMart",
+    "category": "other"
+  },
+  "normalize:CITY TRANSIT PASS": {
+    "merchant_norm": "City Transit",
+    "category": "other"
+  }
+}

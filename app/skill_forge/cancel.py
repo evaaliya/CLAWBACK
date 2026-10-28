@@ -72,6 +72,7 @@ def start_cancel(
             "steps": skill["steps"],
             "card": {
                 "type": "cancel_plan",
+                "subscription_id": subscription_id,
                 "merchant": merchant,
                 "path": "skill",
                 "skill_id": skill["id"],
@@ -112,6 +113,7 @@ def start_cancel(
         "steps": steps,
         "card": {
             "type": "cancel_plan",
+            "subscription_id": subscription_id,
             "merchant": merchant,
             "path": "ultra",
             "steps": steps,

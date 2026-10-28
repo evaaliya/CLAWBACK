@@ -37,7 +37,9 @@ def start_cancel(
 ) -> dict[str, Any]:
     sub = _get_subscription(conn, subscription_id)
     merchant = sub["merchant"]
-    skill = find_skill(conn, merchant=merchant, intent="cancel subscription")
+    skill = find_skill(
+        conn, merchant=merchant, intent="cancel subscription", clock=clock
+    )
 
     if skill is not None:
         _store_pending(
@@ -138,7 +140,9 @@ def confirm_cancel(
     )
 
     pending = _load_pending(conn, subscription_id=subscription_id)
-    skill = find_skill(conn, merchant=merchant, intent="cancel subscription")
+    skill = find_skill(
+        conn, merchant=merchant, intent="cancel subscription", clock=clock
+    )
     path = "skill"
     performed: list[dict[str, Any]] = []
     skill_id: int | None = int(skill["id"]) if skill else None

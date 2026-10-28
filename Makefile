@@ -43,13 +43,14 @@ test:
 # E2E uses recorded responses so results do not depend on the network.
 e2e:
 	@RECORDED_MODE=true DATABASE_PATH=./.e2e.db $(PY) -m app.seed
+	@RECORDED_MODE=true DATABASE_PATH=./.e2e.db $(PY) scripts/e2e_seed_claim.py
 	@RECORDED_MODE=true DATABASE_PATH=./.e2e.db $(UVICORN) app.main:app --port $(PORT) > .e2e-server.log 2>&1 & echo $$! > .e2e-server.pid
 	@ok=0; for i in $$(seq 1 30); do \
 		if curl -sf http://127.0.0.1:$(PORT)/api/health >/dev/null; then ok=1; break; fi; \
 		sleep 1; \
 	done; \
 	if [ "$$ok" != "1" ]; then echo "api not ready"; kill `cat .e2e-server.pid` 2>/dev/null; exit 1; fi
-	@npx playwright test; status=$$?; \
+	@PLAYWRIGHT_BASE_URL=http://127.0.0.1:$(PORT) npx playwright test; status=$$?; \
 	kill `cat .e2e-server.pid` 2>/dev/null; rm -f .e2e-server.pid .e2e.db; \
 	exit $$status
 
@@ -64,13 +65,14 @@ verify:
 	$(PYTEST) -v --junitxml=$$JUNIT; PY_RC=$$?; \
 	echo "=== e2e -> $$PWJSON ==="; \
 	RECORDED_MODE=true DATABASE_PATH=./.e2e.db $(PY) -m app.seed; \
+	RECORDED_MODE=true DATABASE_PATH=./.e2e.db $(PY) scripts/e2e_seed_claim.py; \
 	(RECORDED_MODE=true DATABASE_PATH=./.e2e.db $(UVICORN) app.main:app --port $(PORT) > .e2e-server.log 2>&1 & echo $$! > .e2e-server.pid); \
 	ok=0; for i in $$(seq 1 30); do \
 		if curl -sf http://127.0.0.1:$(PORT)/api/health >/dev/null; then ok=1; break; fi; \
 		sleep 1; \
 	done; \
 	if [ "$$ok" != "1" ]; then echo "api not ready"; kill `cat .e2e-server.pid` 2>/dev/null; exit 1; fi; \
-	npx playwright test --reporter=json > $$PWJSON; E2E_RC=$$?; \
+	PLAYWRIGHT_BASE_URL=http://127.0.0.1:$(PORT) npx playwright test --reporter=json > $$PWJSON; E2E_RC=$$?; \
 	kill `cat .e2e-server.pid` 2>/dev/null; rm -f .e2e-server.pid .e2e.db; \
 	$(PY) scripts/verify_report.py --junit $$JUNIT --playwright $$PWJSON --out $$OUT \
 		--pytest-rc $$PY_RC --e2e-rc $$E2E_RC; \

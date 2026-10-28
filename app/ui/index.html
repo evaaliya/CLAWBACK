@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Clawback</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,600;0,9..40,700;1,9..40,400&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+  <div class="app">
+    <header class="top">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <h1>Clawback</h1>
+      </div>
+      <div class="top-meta">
+        <div id="savings" class="savings" aria-live="polite">
+          <span class="savings-label">Recovered</span>
+          <span id="savings-money" class="savings-money">$0</span>
+          <span id="savings-time" class="savings-time">0h</span>
+        </div>
+        <span id="recorded-badge" class="badge hidden" title="Using cached model and search responses">recorded</span>
+        <button type="button" id="skills-toggle" class="ghost">Skills</button>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="chat-pane" aria-label="Chat">
+        <div id="thread" class="thread"></div>
+        <form id="chat-form" class="composer">
+          <input id="chat-input" type="text" placeholder="Ask about subscriptions, deadlines, claims…" autocomplete="off" />
+          <button type="submit">Send</button>
+        </form>
+      </section>
+
+      <aside class="side">
+        <section class="panel" aria-labelledby="subs-heading">
+          <h2 id="subs-heading">Subscriptions</h2>
+          <ul id="subscriptions" class="list"></ul>
+        </section>
+        <section class="panel" aria-labelledby="deadlines-heading">
+          <h2 id="deadlines-heading">Deadlines</h2>
+          <ul id="deadlines" class="list"></ul>
+        </section>
+      </aside>
+    </main>
+  </div>
+
+  <aside id="skills-drawer" class="drawer" hidden>
+    <div class="drawer-head">
+      <h2>Skills</h2>
+      <button type="button" id="skills-close" class="ghost">Close</button>
+    </div>
+    <div id="skills-body" class="drawer-body"></div>
+  </aside>
+  <div id="drawer-backdrop" class="backdrop" hidden></div>
+
+  <script type="module" src="/static/app.js"></script>
+</body>
+</html>

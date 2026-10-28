@@ -6,6 +6,7 @@ from fastapi import APIRouter, HTTPException, Request
 
 from app.claim_writer import accept_refund
 from app.db import connect
+from app.events import get_broker
 from app.portal.actions import (
     get_account_view,
     get_help_cancel,
@@ -121,6 +122,10 @@ def post_refund_accept(merchant: str, request: Request) -> dict:
                 minutes_saved=settings.minutes_saved_per_claim,
             )
             conn.commit()
+            get_broker().publish(
+                "claim.changed", {"claim_id": result.get("claim_id")}
+            )
+            get_broker().publish("savings.changed", {})
         except KeyError as exc:
             raise HTTPException(
                 status_code=404,

@@ -18,6 +18,7 @@ def find_skill(
     *,
     merchant: str,
     intent: str = "cancel subscription",
+    clock: Clock | None = None,
 ) -> dict[str, Any] | None:
     """Lookup: merchant + trigger, then portal_template + trigger."""
     intent_norm = intent.strip().lower()
@@ -62,9 +63,21 @@ def find_skill(
                 (template["portal_template"], intent_norm),
             ).fetchone()
 
-    if row is None:
-        return None
-    return _row_to_skill(row)
+    skill = _row_to_skill(row) if row is not None else None
+    if clock is not None:
+        log_action(
+            conn,
+            clock,
+            actor="skill_forge",
+            action="find_skill",
+            payload={
+                "merchant": merchant,
+                "intent": intent_norm,
+                "skill_id": skill["id"] if skill else None,
+                "found": skill is not None,
+            },
+        )
+    return skill
 
 
 def run_skill(

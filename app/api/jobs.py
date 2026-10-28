@@ -6,6 +6,7 @@ from fastapi import APIRouter, Request
 
 from app.db import connect
 from app.deadline_watcher import scan
+from app.events import get_broker
 
 router = APIRouter(tags=["jobs"])
 
@@ -22,6 +23,11 @@ def post_jobs_scan(request: Request) -> dict:
             hot_deadline_days=settings.hot_deadline_days,
         )
         conn.commit()
+        if result.get("created"):
+            get_broker().publish(
+                "notification.new",
+                {"count": result["created"], "day": result.get("day")},
+            )
     finally:
         conn.close()
     return result

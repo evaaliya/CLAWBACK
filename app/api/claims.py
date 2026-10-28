@@ -12,9 +12,15 @@ from app.claim_writer import (
     reject_claim,
 )
 from app.db import connect
+from app.events import get_broker
 from app.llm import resolve_model_ids
 
 router = APIRouter(tags=["claims"])
+
+
+def _publish(event: str, data: dict | None = None) -> None:
+    get_broker().publish(event, data or {})
+
 
 
 class PrepareBody(BaseModel):
@@ -42,6 +48,7 @@ def post_prepare_claim(body: PrepareBody, request: Request) -> dict:
             model_super=models["super"],
         )
         conn.commit()
+        _publish("claim.changed", {"claim_id": result.get("claim_id")})
     finally:
         conn.close()
     return result
@@ -56,6 +63,7 @@ def post_approve_claim(claim_id: int, request: Request) -> dict:
         try:
             result = approve_claim(conn, claim_id=claim_id, clock=clock)
             conn.commit()
+            _publish("claim.changed", {"claim_id": claim_id})
         except ApprovalRequired as exc:
             raise HTTPException(
                 status_code=403,
@@ -85,6 +93,7 @@ def post_reject_claim(claim_id: int, request: Request) -> dict:
         try:
             result = reject_claim(conn, claim_id=claim_id, clock=clock)
             conn.commit()
+            _publish("claim.changed", {"claim_id": claim_id})
         except KeyError as exc:
             raise HTTPException(
                 status_code=404,

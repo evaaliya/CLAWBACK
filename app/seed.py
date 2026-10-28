@@ -11,6 +11,7 @@ from pathlib import Path
 from app.clock import Clock, clock_from_settings
 from app.config import Settings, get_settings
 from app.db import connect, init_db
+from app.ingest.subscriptions import apply_unused_flag
 from app.money import dollars_to_cents
 
 # Simple merchant labels for the demo statement (full Nano normalization is M1).
@@ -217,6 +218,7 @@ def seed_all(
         "skills": seed_skills(conn, demo),
         "savings_events": seed_savings(conn, demo, clock),
     }
+    apply_unused_flag(conn, clock)
     conn.commit()
     return counts
 

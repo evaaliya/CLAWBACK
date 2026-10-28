@@ -5,11 +5,17 @@ from __future__ import annotations
 from fastapi import APIRouter, HTTPException, Request
 
 from app.db import connect
+from app.events import get_broker
 from app.ingest.subscriptions import list_subscriptions
 from app.portal.errors import ActionUnavailable, ApprovalRequired
 from app.skill_forge import confirm_cancel, start_cancel
 
 router = APIRouter(tags=["subscriptions"])
+
+
+def _publish(event: str, data: dict | None = None) -> None:
+    get_broker().publish(event, data or {})
+
 
 
 @router.get("/subscriptions")
@@ -39,6 +45,7 @@ def post_cancel(subscription_id: int, request: Request) -> dict:
                 model_ultra=settings.model_ultra,
             )
             conn.commit()
+            _publish("subscription.changed", {"subscription_id": subscription_id})
             return result
         except KeyError as exc:
             raise HTTPException(
@@ -71,6 +78,10 @@ def post_cancel_confirm(subscription_id: int, request: Request) -> dict:
                 minutes_saved=settings.minutes_saved_per_cancel,
             )
             conn.commit()
+            _publish("subscription.changed", {"subscription_id": subscription_id})
+            _publish("savings.changed", {})
+            if result.get("path") in ("ultra", "ultra_fallback"):
+                _publish("skill.saved", {"skill_id": result.get("skill_id")})
             return result
         except KeyError as exc:
             raise HTTPException(

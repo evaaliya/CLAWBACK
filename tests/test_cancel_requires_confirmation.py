@@ -12,7 +12,9 @@ from app.skill_forge.tools import find_skill, run_skill
 
 def test_cancel_requires_confirmation(seeded_conn, clock: Clock) -> None:
     conn = seeded_conn
-    skill = find_skill(conn, merchant="FitPulse", intent="cancel subscription")
+    skill = find_skill(
+        conn, merchant="FitPulse", intent="cancel subscription", clock=clock
+    )
     assert skill is not None
 
     with pytest.raises(ApprovalRequired):

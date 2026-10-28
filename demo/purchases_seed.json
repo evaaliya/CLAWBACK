@@ -1,0 +1,16 @@
+{
+  "_note": "Expected purchase after ingest. return_deadline is seeded because the fictional SoundHub policy is a cached fixture; see demo/policies/.",
+  "purchases": [
+    {
+      "merchant": "SoundHub",
+      "item": "Wireless over-ear headphones SH-700",
+      "date": "2026-09-30",
+      "amount_cents": 23500,
+      "currency": "USD",
+      "return_deadline": "2026-10-30",
+      "warranty_until": null,
+      "receipt_path": "demo/receipts/soundhub-order-48213.txt",
+      "status": "open"
+    }
+  ]
+}

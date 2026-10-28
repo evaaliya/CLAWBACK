@@ -1,0 +1,13 @@
+{
+  "_note": "Single source of truth for the demo counter. Totals must equal 84700 cents and 360 minutes. Verified by tests.",
+  "expected_total_cents": 84700,
+  "expected_time_saved_min": 360,
+  "seeded_before_demo": ["dailynews-cancel"],
+  "events": [
+    {"id": "dailynews-cancel", "kind": "cancel", "merchant": "DailyNews", "monthly_cents": 800, "amount_cents": 9600, "time_saved_min": 60, "path": "seeded history"},
+    {"id": "streamflix-cancel", "kind": "cancel", "merchant": "StreamFlix", "monthly_cents": 1500, "amount_cents": 18000, "time_saved_min": 60, "path": "ultra, learns settings-menu skill"},
+    {"id": "cloudnest-cancel", "kind": "cancel", "merchant": "CloudNest", "monthly_cents": 1600, "amount_cents": 19200, "time_saved_min": 60, "path": "ultra or saved settings-menu skill"},
+    {"id": "fitpulse-cancel", "kind": "cancel", "merchant": "FitPulse", "monthly_cents": 1200, "amount_cents": 14400, "time_saved_min": 60, "path": "saved account-membership skill, under 5 seconds"},
+    {"id": "soundhub-refund", "kind": "refund", "merchant": "SoundHub", "amount_cents": 23500, "time_saved_min": 120, "path": "tavily policy, ultra draft, user approval"}
+  ]
+}

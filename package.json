@@ -1,0 +1,9 @@
+{
+  "name": "clawback",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Clawback e2e (Playwright) — wired in later milestones",
+  "devDependencies": {
+    "@playwright/test": "^1.48.0"
+  }
+}

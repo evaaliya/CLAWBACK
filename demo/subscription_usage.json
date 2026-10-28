@@ -1,0 +1,11 @@
+{
+  "_note": "Emulated usage signal (last login) per subscription. Demo today is 2026-10-27. Unused means older than 90 days.",
+  "demo_today": "2026-10-27",
+  "usage": [
+    {"merchant": "StreamFlix", "last_used_at": "2026-06-26", "days_ago": 123, "portal_template": "settings-menu"},
+    {"merchant": "CloudNest", "last_used_at": "2026-07-27", "days_ago": 92, "portal_template": "settings-menu"},
+    {"merchant": "FitPulse", "last_used_at": "2026-10-24", "days_ago": 3, "portal_template": "account-membership"},
+    {"merchant": "TuneBox", "last_used_at": "2026-10-26", "days_ago": 1, "portal_template": "settings-menu"},
+    {"merchant": "DailyNews", "last_used_at": "2026-07-01", "days_ago": 118, "portal_template": "account-membership", "status": "cancelled"}
+  ]
+}

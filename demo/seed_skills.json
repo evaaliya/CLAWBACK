@@ -1,0 +1,20 @@
+{
+  "_note": "Skill learned from the seeded DailyNews cancellation. Applies to any merchant on the account-membership mock portal template.",
+  "skills": [
+    {
+      "name": "cancel_subscription:account-membership",
+      "merchant": "DailyNews",
+      "portal_template": "account-membership",
+      "trigger": "cancel subscription",
+      "steps": [
+        {"action": "open_account_settings", "note": "Account > Membership"},
+        {"action": "find_cancel_link", "note": "Cancel membership"},
+        {"action": "confirm_cancel", "note": "Requires user confirmation"},
+        {"action": "save_confirmation", "note": "Store confirmation in memory"}
+      ],
+      "sources": ["mock-portal://account-membership/help/cancel"],
+      "success_count": 1,
+      "learned_at": "2026-09-14"
+    }
+  ]
+}

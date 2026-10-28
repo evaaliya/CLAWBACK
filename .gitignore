@@ -17,3 +17,21 @@ test-results/
 reports/pytest-*.xml
 reports/playwright-*.json
 .DS_Store
+
+
+
+# Clawback
+.env
+.venv/
+__pycache__/
+*.pyc
+*.db
+*.db-wal
+*.db-shm
+.cache/
+node_modules/
+test-results/
+playwright-report/
+.e2e.db
+.e2e-server.log
+.e2e-server.pid

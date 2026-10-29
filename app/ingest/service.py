@@ -44,7 +44,9 @@ def ingest_statement(
     rows = parse_statement(content, filename=filename)
     inserted = 0
     for row in rows:
-        norm = normalize_merchant(llm, row["merchant_raw"], model=model)
+        norm = normalize_merchant(
+            llm, row["merchant_raw"], model=model, conn=conn, clock=clock
+        )
         conn.execute(
             """
             INSERT INTO transactions

@@ -7,6 +7,8 @@ const timeEl = $("#savings-time");
 const deltaEl = $("#savings-delta");
 const subsEl = $("#subscriptions");
 const deadlinesEl = $("#deadlines");
+const activityEl = $("#activity");
+const modelsCardEl = $("#models-card");
 const recordedBadge = $("#recorded-badge");
 const demoResetBtn = $("#demo-reset");
 const skillsDrawer = $("#skills-drawer");
@@ -399,12 +401,74 @@ async function refreshSkills() {
   }
 }
 
+async function refreshActivity() {
+  if (!activityEl || !modelsCardEl) return;
+  const data = await api("GET", "/api/activity");
+  const models = data.models || [];
+  if (!models.length) {
+    modelsCardEl.innerHTML =
+      '<h3>Models</h3><div class="empty">No model calls yet this session.</div>';
+  } else {
+    modelsCardEl.innerHTML =
+      "<h3>Models</h3>" +
+      models
+        .map(
+          (m) =>
+            `<div class="model-row"><span>${m.role}</span>` +
+            `<span>${m.calls} calls · ${m.prompt_tokens + m.completion_tokens} tok</span></div>`
+        )
+        .join("");
+  }
+  activityEl.innerHTML = "";
+  const events = data.events || [];
+  if (!events.length) {
+    const li = document.createElement("li");
+    li.className = "empty-hint";
+    li.textContent = "No agent activity yet.";
+    activityEl.appendChild(li);
+    return;
+  }
+  for (const ev of [...events].reverse()) {
+    const li = document.createElement("li");
+    if (ev.highlighted) li.classList.add("highlight");
+    const model = ev.model ? ` · ${ev.model}` : "";
+    const ms = ev.latency_ms != null ? ` · ${ev.latency_ms}ms` : "";
+    li.innerHTML =
+      `<span class="act-tool">${ev.tool || ev.action}</span>` +
+      `<span class="act-meta">${ev.status || "ok"}${model}${ms}</span>`;
+    activityEl.appendChild(li);
+  }
+}
+
+function setupSideTabs() {
+  const tabs = document.querySelectorAll(".side-tab");
+  tabs.forEach((tab) => {
+    tab.addEventListener("click", () => {
+      const panel = tab.dataset.panel;
+      tabs.forEach((t) => {
+        const on = t === tab;
+        t.classList.toggle("active", on);
+        t.setAttribute("aria-selected", on ? "true" : "false");
+      });
+      for (const id of ["subs", "deadlines", "activity"]) {
+        const el = document.getElementById(`panel-${id}`);
+        if (!el) continue;
+        const show = id === panel;
+        el.hidden = !show;
+        el.classList.toggle("hidden", !show);
+      }
+      if (panel === "activity") refreshActivity().catch(() => {});
+    });
+  });
+}
+
 async function refreshAll() {
   await Promise.all([
     refreshSavings(),
     refreshSubscriptions(),
     refreshDeadlines(),
     refreshSkills(),
+    refreshActivity(),
   ]);
 }
 
@@ -523,5 +587,6 @@ $("#skills-toggle").addEventListener("click", openSkills);
 $("#skills-close").addEventListener("click", closeSkills);
 backdrop.addEventListener("click", closeSkills);
 if (demoResetBtn) demoResetBtn.addEventListener("click", resetDemo);
+setupSideTabs();
 
 boot();

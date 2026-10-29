@@ -7,6 +7,8 @@ from typing import Any, Protocol
 
 from app.agent_log import log_action
 from app.clock import Clock
+from app.privacy.redact import build_policy_query
+from app.privacy.trace import search_traced
 
 
 class SearchClient(Protocol):
@@ -14,10 +16,8 @@ class SearchClient(Protocol):
 
 
 def policy_query(merchant: str, jurisdiction: str, topic: str = "return refund") -> str:
-    parts = [merchant, topic, "policy"]
-    if jurisdiction:
-        parts.append(jurisdiction)
-    return " ".join(parts)
+    """Backward-compatible wrapper; prefer build_policy_query(merchant, topic, jurisdiction)."""
+    return build_policy_query(merchant, topic, jurisdiction)
 
 
 def web_search_policy(
@@ -29,8 +29,15 @@ def web_search_policy(
     topic: str = "return refund",
     jurisdiction: str = "",
 ) -> list[dict[str, Any]]:
-    query = policy_query(merchant, jurisdiction, topic=topic)
-    results = search.search(query)
+    query = build_policy_query(merchant, topic, jurisdiction)
+    results = search_traced(
+        conn,
+        clock,
+        search,
+        query=query,
+        role="policy",
+        model="tavily",
+    )
     sources = [
         {
             "title": r.get("title") or "",

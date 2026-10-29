@@ -10,6 +10,7 @@ from pydantic import BaseModel, Field, ValidationError, field_validator
 
 from app.agent_log import log_action
 from app.clock import Clock
+from app.privacy.trace import complete_traced
 
 
 class Citation(BaseModel):
@@ -53,7 +54,15 @@ def draft_claim(
     feedback: str | None = None,
 ) -> ClaimDraft:
     prompt = _draft_prompt(purchase, policy_sources, feedback=feedback)
-    raw = llm.complete(model=model, prompt=prompt, recording_key=recording_key)
+    raw = complete_traced(
+        conn,
+        clock,
+        llm,
+        role="draft",
+        model=model,
+        prompt=prompt,
+        recording_key=recording_key,
+    )
     draft = ClaimDraft.model_validate(_as_dict(raw))
     log_action(
         conn,
@@ -88,7 +97,15 @@ def super_validate(
         f"draft={draft.model_dump_json()}"
     )
     try:
-        raw = llm.complete(model=model, prompt=prompt, recording_key=recording_key)
+        raw = complete_traced(
+            conn,
+            clock,
+            llm,
+            role="validate",
+            model=model,
+            prompt=prompt,
+            recording_key=recording_key,
+        )
         data = _as_dict(raw)
         ok = bool(data.get("ok"))
         reasons = [str(r) for r in (data.get("reasons") or [])]

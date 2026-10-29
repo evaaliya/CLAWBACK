@@ -99,6 +99,10 @@ class BudgetAwareLLM:
         self._recorded = recorded
         self._budget = budget
         self._force_recorded = force_recorded
+        self._last_usage: dict[str, int] = {
+            "prompt_tokens": 0,
+            "completion_tokens": 0,
+        }
         self.calls: list[dict[str, Any]] = []
         self.call_counts = getattr(live, "call_counts", None) or getattr(
             recorded, "call_counts", None
@@ -117,8 +121,20 @@ class BudgetAwareLLM:
 
     def complete(self, **kwargs: Any) -> Any:
         if self._force_recorded or not self._budget.try_consume():
-            return self._recorded.complete(**kwargs)
-        return self._live.complete(**kwargs)
+            result = self._recorded.complete(**kwargs)
+            self.last_usage = dict(getattr(self._recorded, "last_usage", {}) or {})
+            return result
+        result = self._live.complete(**kwargs)
+        self.last_usage = dict(getattr(self._live, "last_usage", {}) or {})
+        return result
+
+    @property
+    def last_usage(self) -> dict[str, int]:
+        return self._last_usage
+
+    @last_usage.setter
+    def last_usage(self, value: dict[str, int]) -> None:
+        self._last_usage = dict(value or {})
 
 
 class BudgetAwareSearch:

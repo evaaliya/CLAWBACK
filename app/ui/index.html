@@ -49,15 +49,26 @@
       </section>
 
       <aside class="side">
-        <section class="panel" aria-labelledby="subs-heading">
+        <div class="side-tabs" role="tablist" aria-label="Side panels">
+          <button type="button" class="side-tab active" role="tab" id="tab-subs" aria-selected="true" data-panel="subs">Subscriptions</button>
+          <button type="button" class="side-tab" role="tab" id="tab-deadlines" aria-selected="false" data-panel="deadlines">Deadlines</button>
+          <button type="button" class="side-tab" role="tab" id="tab-activity" aria-selected="false" data-panel="activity">Activity</button>
+        </div>
+        <section class="panel side-panel" id="panel-subs" aria-labelledby="subs-heading" role="tabpanel">
           <h2 id="subs-heading">Subscriptions</h2>
           <p class="panel-caption">Recurring charges Clawback found. Unused ones are highlighted; cancel any active plan from here.</p>
           <ul id="subscriptions" class="list"></ul>
         </section>
-        <section class="panel" aria-labelledby="deadlines-heading">
+        <section class="panel side-panel hidden" id="panel-deadlines" aria-labelledby="deadlines-heading" role="tabpanel" hidden>
           <h2 id="deadlines-heading">Deadlines</h2>
           <p class="panel-caption">Return and warranty windows that are still open, sorted by urgency.</p>
           <ul id="deadlines" class="list"></ul>
+        </section>
+        <section class="panel side-panel hidden" id="panel-activity" aria-labelledby="activity-heading" role="tabpanel" hidden>
+          <h2 id="activity-heading">Activity</h2>
+          <p class="panel-caption">What Clawback called: tools, models, latency. Blocked or awaiting-approval rows are highlighted.</p>
+          <div id="models-card" class="models-card" aria-label="Models"></div>
+          <ol id="activity" class="activity-list"></ol>
         </section>
       </aside>
     </main>

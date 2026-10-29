@@ -10,6 +10,8 @@ from pydantic import BaseModel, ValidationError, field_validator
 
 from app.agent_log import log_action
 from app.clock import Clock
+from app.privacy.redact import scrub_for_model
+from app.privacy.trace import complete_traced
 
 
 class ReceiptFields(BaseModel):
@@ -53,14 +55,19 @@ def parse_and_store_receipt(
 ) -> dict[str, Any]:
     """Parse receipt text via Nano; retry once on invalid JSON; else needs_review."""
     key = recording_key or f"receipt:{receipt_path or 'upload'}"
-    prompt = _receipt_prompt(text)
+    # Scrub before the model; raw `text` is still stored in documents below.
+    prompt = _receipt_prompt(scrub_for_model(text))
     parsed: ReceiptFields | None = None
     needs_review = False
     last_error: str | None = None
 
     for attempt in range(2):
         try:
-            raw = llm.complete(
+            raw = complete_traced(
+                conn,
+                clock,
+                llm,
+                role="receipt",
                 model=model,
                 prompt=prompt if attempt == 0 else _retry_prompt(prompt, last_error),
                 recording_key=key,

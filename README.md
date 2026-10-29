@@ -34,11 +34,24 @@ make up                  # http://localhost:8000
 | `make e2e` | Playwright end-to-end tests in recorded mode |
 | `make verify` | Everything, plus the T1–T23 report in `reports/` |
 
+## Data egress
+
+Exactly what leaves this machine. Raw receipts and statements stay in local SQLite; models see scrubbed text only. Data sent to Nebius Token Factory is covered by Nebius's terms — this README does not claim zero retention.
+
+| Destination | What is sent |
+| --- | --- |
+| Nebius Token Factory | Scrubbed receipt/statement fragments for parse; purchase facts + Tavily excerpts for claim draft/validate; portal help text for cancel planning |
+| Tavily Search | Policy query from `{merchant, topic, jurisdiction}` only (`build_policy_query`) — never receipt body, names, emails, or card digits |
+| Mock merchant portal / outbox | Claim body and cancel steps only after a stored user approval |
+| Browser | Same-origin UI/SSE only (no third-party analytics) |
+
+Open the **Activity** tab in the web UI for the live `agent_log` timeline and per-model token counts.
+
 ## Project documents
 
 | File | Purpose |
 | --- | --- |
-| `SPEC.md` | Requirements, architecture, data model, tests T1–T23, milestones M0–M6 |
+| `SPEC.md` | Requirements, architecture, data model, tests T1–T34, milestones M0–M9 |
 | `STATUS.md` | What works, what does not, what is not done; updated after each milestone |
 | `scope.md` | In scope, out of scope, order of cutting scope |
 | `AGENTS.md` | Entry point for coding agents |
@@ -64,4 +77,4 @@ reports/    verify reports (generated)
 
 ## Working through it
 
-Follow milestones M0 to M6 in `SPEC.md` section 12. Each has a checklist and a "Done when" tied to tests. After each milestone: commit, add an entry to `docs/DECISIONS.md`, update `STATUS.md`.
+Follow milestones in `SPEC.md` section 12 (one at a time). Each has a checklist and a "Done when" tied to tests. After each milestone: commit, add an entry to `docs/DECISIONS.md`, update `STATUS.md`.

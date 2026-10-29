@@ -32,6 +32,10 @@ class NebiusLLM:
             raise ValueError("NEBIUS_API_KEY is required for NebiusLLM")
         self.calls: list[dict[str, Any]] = []
         self.call_counts: Counter[str] = Counter()
+        self.last_usage: dict[str, int] = {
+            "prompt_tokens": 0,
+            "completion_tokens": 0,
+        }
         self._client = OpenAI(
             api_key=api_key,
             base_url=base_url or DEFAULT_BASE_URL,
@@ -83,6 +87,11 @@ class NebiusLLM:
             extra_body=extra_body,
             **kwargs,
         )
+        usage = getattr(response, "usage", None)
+        self.last_usage = {
+            "prompt_tokens": int(getattr(usage, "prompt_tokens", 0) or 0),
+            "completion_tokens": int(getattr(usage, "completion_tokens", 0) or 0),
+        }
         message = response.choices[0].message
         content = message.content
         if content:

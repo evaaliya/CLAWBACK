@@ -10,6 +10,7 @@ from fastapi import FastAPI
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
+from app.api.activity import router as activity_router
 from app.api.chat import router as chat_router
 from app.api.claims import router as claims_router
 from app.api.deadlines import router as deadlines_router
@@ -67,6 +68,7 @@ app.include_router(deadlines_router, prefix="/api")
 app.include_router(jobs_router, prefix="/api")
 app.include_router(claims_router, prefix="/api")
 app.include_router(savings_router, prefix="/api")
+app.include_router(activity_router, prefix="/api")
 app.include_router(chat_router, prefix="/api")
 app.include_router(events_router, prefix="/api")
 app.include_router(demo_router, prefix="/api")

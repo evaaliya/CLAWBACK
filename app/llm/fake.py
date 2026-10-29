@@ -25,6 +25,10 @@ class FakeLLM:
     ) -> None:
         self.calls: list[dict[str, Any]] = []
         self.call_counts: Counter[str] = Counter()
+        self.last_usage: dict[str, int] = {
+            "prompt_tokens": 0,
+            "completion_tokens": 0,
+        }
         self._recordings: dict[str, Any] = {}
         self._default = default_response
         if recordings is None:
@@ -81,11 +85,28 @@ class FakeLLM:
         self.call_counts[model] += 1
 
         if key in self._recordings:
-            return self._recordings[key]
-        # Allow lookup by model name or free-form aliases in fixtures.
-        for alias in (model, kwargs.get("recording_key"), prompt):
-            if isinstance(alias, str) and alias in self._recordings:
-                return self._recordings[alias]
-        if self._default is not None:
-            return self._default
-        raise KeyError(f"no recorded LLM response for hash {key[:12]}…")
+            result = self._recordings[key]
+        else:
+            result = None
+            # Allow lookup by model name or free-form aliases in fixtures.
+            for alias in (model, kwargs.get("recording_key"), prompt):
+                if isinstance(alias, str) and alias in self._recordings:
+                    result = self._recordings[alias]
+                    break
+            if result is None and self._default is not None:
+                result = self._default
+            if result is None:
+                raise KeyError(f"no recorded LLM response for hash {key[:12]}…")
+
+        prompt_blob = prompt or json.dumps(messages or [], ensure_ascii=False)
+        if isinstance(result, str):
+            completion_blob = result
+        else:
+            completion_blob = json.dumps(result, ensure_ascii=False)
+        self.last_usage = {
+            "prompt_tokens": max(1, len(prompt_blob) // 4) if prompt_blob else 0,
+            "completion_tokens": max(1, len(completion_blob) // 4)
+            if completion_blob
+            else 0,
+        }
+        return result

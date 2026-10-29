@@ -13,6 +13,7 @@ from app.clock import Clock
 from app.portal.actions import get_help_cancel, perform_action
 from app.portal.templates import default_steps_for_template
 from app.portal.errors import ActionUnavailable, ApprovalRequired
+from app.privacy.trace import complete_traced
 
 
 class PlanStep(BaseModel):
@@ -59,7 +60,15 @@ def plan_cancel_steps(
         f"help={json.dumps(help_page, ensure_ascii=False)}"
     )
     recording_key = f"cancel:plan:{merchant}"
-    raw = llm.complete(model=model, prompt=prompt, recording_key=recording_key)
+    raw = complete_traced(
+        conn,
+        clock,
+        llm,
+        role="plan",
+        model=model,
+        prompt=prompt,
+        recording_key=recording_key,
+    )
     try:
         plan = CancelPlan.model_validate(_as_dict(raw))
         steps = [{"action": s.action, "note": s.note} for s in plan.steps]

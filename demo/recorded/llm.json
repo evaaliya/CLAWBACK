@@ -2,22 +2,58 @@
   "_note": "FakeLLM recordings for RECORDED_MODE / Golden Path. Keys are recording_key aliases.",
   "cancel:plan:StreamFlix": {
     "steps": [
-      {"action": "open_settings", "note": "Settings"},
-      {"action": "open_subscription", "note": "Subscription"},
-      {"action": "manage_plan", "note": "Manage plan"},
-      {"action": "end_plan", "note": "End plan"},
-      {"action": "confirm_cancel", "note": "Requires user confirmation"},
-      {"action": "save_confirmation", "note": "Store confirmation in memory"}
+      {
+        "action": "open_settings",
+        "note": "Settings"
+      },
+      {
+        "action": "open_subscription",
+        "note": "Subscription"
+      },
+      {
+        "action": "manage_plan",
+        "note": "Manage plan"
+      },
+      {
+        "action": "end_plan",
+        "note": "End plan"
+      },
+      {
+        "action": "confirm_cancel",
+        "note": "Requires user confirmation"
+      },
+      {
+        "action": "save_confirmation",
+        "note": "Store confirmation in memory"
+      }
     ]
   },
   "cancel:plan:CloudNest": {
     "steps": [
-      {"action": "open_settings", "note": "Settings"},
-      {"action": "open_subscription", "note": "Subscription"},
-      {"action": "manage_plan", "note": "Manage plan"},
-      {"action": "end_plan", "note": "End plan"},
-      {"action": "confirm_cancel", "note": "Requires user confirmation"},
-      {"action": "save_confirmation", "note": "Store confirmation in memory"}
+      {
+        "action": "open_settings",
+        "note": "Settings"
+      },
+      {
+        "action": "open_subscription",
+        "note": "Subscription"
+      },
+      {
+        "action": "manage_plan",
+        "note": "Manage plan"
+      },
+      {
+        "action": "end_plan",
+        "note": "End plan"
+      },
+      {
+        "action": "confirm_cancel",
+        "note": "Requires user confirmation"
+      },
+      {
+        "action": "save_confirmation",
+        "note": "Store confirmation in memory"
+      }
     ]
   },
   "claim:draft": {
@@ -40,7 +76,10 @@
       }
     ]
   },
-  "claim:validate": {"ok": true, "reasons": []},
+  "claim:validate": {
+    "ok": true,
+    "reasons": []
+  },
   "receipt:soundhub-order-48213.txt": {
     "merchant": "SoundHub",
     "item": "Wireless over-ear headphones SH-700",

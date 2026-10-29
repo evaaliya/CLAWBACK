@@ -36,13 +36,3 @@ playwright-report/
 .e2e-server.log
 .e2e-server.pid
 
-# Process / agent docs — keep local only, never push
-AGENTS.md
-SPEC.md
-STATUS.md
-scope.md
-CLAUDE.md
-.claude/
-.cursor/
-.agent/
-docs/

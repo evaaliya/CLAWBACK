@@ -1,0 +1,51 @@
+{
+  "session": "2026-10-29 live RECORDED_MODE=false",
+  "note": "SoundHub claim used recorded search fixture after live Tavily probe (5 irrelevant hits for fictional merchant).",
+  "rows": [
+    {
+      "model": "nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B",
+      "role": "receipt",
+      "calls": 1,
+      "prompt_tokens": 196,
+      "completion_tokens": 101,
+      "p50_ms": 3746,
+      "p95_ms": 3746
+    },
+    {
+      "model": "nvidia/Nemotron-3-Ultra-550b-a55b",
+      "role": "draft",
+      "calls": 1,
+      "prompt_tokens": 280,
+      "completion_tokens": 174,
+      "p50_ms": 14514,
+      "p95_ms": 14514
+    },
+    {
+      "model": "nvidia/Nemotron-3-Ultra-550b-a55b",
+      "role": "plan",
+      "calls": 1,
+      "prompt_tokens": 225,
+      "completion_tokens": 76,
+      "p50_ms": 558,
+      "p95_ms": 558
+    },
+    {
+      "model": "nvidia/nemotron-3-super-120b-a12b",
+      "role": "validate",
+      "calls": 1,
+      "prompt_tokens": 291,
+      "completion_tokens": 15,
+      "p50_ms": 1314,
+      "p95_ms": 1314
+    },
+    {
+      "model": "tavily",
+      "role": "policy",
+      "calls": 2,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "p50_ms": 0,
+      "p95_ms": 804
+    }
+  ]
+}

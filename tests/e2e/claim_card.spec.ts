@@ -1,9 +1,9 @@
 import { expect, test } from "@playwright/test";
+import { resetDemo } from "./golden_path";
 
 test("e2e_claim_card", async ({ page, request }) => {
   // Self-contained: reset + draft claim so order vs golden-path specs does not matter.
-  const reset = await request.post("/api/demo/reset");
-  expect(reset.ok()).toBeTruthy();
+  await resetDemo(request);
   const seeded = await request.post("/api/demo/seed-claim");
   expect(seeded.ok()).toBeTruthy();
 

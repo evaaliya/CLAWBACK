@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Any
 
 from app.config import ROOT, Settings
+from app.hardening.budget import BudgetAwareLLM, LiveBudget
 from app.llm.fake import FakeLLM
 from app.llm.nebius import (
     DEFAULT_BASE_URL,
@@ -30,13 +31,26 @@ def resolve_model_ids(settings: Settings) -> dict[str, str]:
     }
 
 
-def build_llm(settings: Settings) -> Any:
+def build_llm(
+    settings: Settings,
+    *,
+    budget: LiveBudget | None = None,
+) -> Any:
+    recorded = FakeLLM(recorded_llm_path(settings))
     if settings.recorded_mode:
-        return FakeLLM(recorded_llm_path(settings))
+        return recorded
     if settings.nebius_api_key:
-        return NebiusLLM(
+        live = NebiusLLM(
             api_key=settings.nebius_api_key,
             base_url=settings.nebius_base_url or DEFAULT_BASE_URL,
         )
+        if budget is not None:
+            return BudgetAwareLLM(
+                live=live,
+                recorded=recorded,
+                budget=budget,
+                force_recorded=False,
+            )
+        return live
     # Offline without a key: same FakeLLM seam as tests.
     return FakeLLM()

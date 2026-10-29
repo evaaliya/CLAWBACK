@@ -42,6 +42,23 @@ body {
   gap: 1rem;
 }
 
+.demo-banner {
+  margin: 0;
+  padding: 0.65rem 0.9rem;
+  border-radius: 10px;
+  border: 1px solid #f0d9a8;
+  background: linear-gradient(90deg, #fff8e8, #fef3c7);
+  color: #7a4a08;
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+.shared-caption {
+  margin: -0.35rem 0 0;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
 .top {
   display: flex;
   align-items: center;

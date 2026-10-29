@@ -7,6 +7,7 @@ from pydantic import BaseModel, Field
 
 from app.chat import handle_chat
 from app.db import connect
+from app.hardening.http import enforce_live_api_rate
 
 router = APIRouter(tags=["chat"])
 
@@ -17,6 +18,7 @@ class ChatBody(BaseModel):
 
 @router.post("/chat")
 def post_chat(body: ChatBody, request: Request) -> dict:
+    enforce_live_api_rate(request)
     settings = request.app.state.settings
     clock = request.app.state.clock
     conn = connect(settings.database_file())

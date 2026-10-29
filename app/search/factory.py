@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Any
 
 from app.config import ROOT, Settings
+from app.hardening.budget import BudgetAwareSearch, LiveBudget
 from app.search.fake import FakeSearch
 from app.search.tavily import TavilySearch
 
@@ -16,13 +17,26 @@ def recorded_search_path(settings: Settings | None = None) -> Path:
     return demo / "recorded" / "search.json"
 
 
-def build_search(settings: Settings) -> Any:
+def build_search(
+    settings: Settings,
+    *,
+    budget: LiveBudget | None = None,
+) -> Any:
     cache = settings.cache_path() / "search"
+    recorded = FakeSearch(recorded_search_path(settings))
     if settings.recorded_mode:
-        return FakeSearch(recorded_search_path(settings))
+        return recorded
     if settings.tavily_api_key:
-        return TavilySearch(
+        live = TavilySearch(
             api_key=settings.tavily_api_key,
             cache_dir=cache,
         )
+        if budget is not None:
+            return BudgetAwareSearch(
+                live=live,
+                recorded=recorded,
+                budget=budget,
+                force_recorded=False,
+            )
+        return live
     return FakeSearch()

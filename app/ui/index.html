@@ -11,6 +11,9 @@
 </head>
 <body>
   <div class="app">
+    <div class="demo-banner" role="status">
+      Demo with fictional data. Do not upload real bank data.
+    </div>
     <header class="top">
       <div class="brand">
         <span class="brand-mark" aria-hidden="true"></span>
@@ -25,9 +28,11 @@
           <span id="savings-delta" class="savings-delta hidden" aria-live="polite"></span>
         </div>
         <span id="recorded-badge" class="badge hidden" title="Using cached model and search responses">recorded</span>
+        <button type="button" id="demo-reset" class="ghost" title="Restore the shared demo dataset">Reset demo</button>
         <button type="button" id="skills-toggle" class="ghost">Skills</button>
       </div>
     </header>
+    <p class="shared-caption">Shared demo: all visitors see the same state.</p>
 
     <main class="layout">
       <section class="chat-pane" aria-label="Chat">

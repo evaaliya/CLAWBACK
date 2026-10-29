@@ -25,6 +25,8 @@ from app.clock import clock_from_settings
 from app.config import get_settings
 from app.db import connect, init_db
 from app.events import get_broker
+from app.hardening.budget import LiveBudget
+from app.hardening.rate_limit import RateLimiter
 from app.llm import build_llm
 from app.portal.routes import router as portal_router
 from app.search import build_search
@@ -35,10 +37,18 @@ UI_DIR = Path(__file__).resolve().parent / "ui"
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     settings = get_settings()
+    clock = clock_from_settings(settings.demo_today)
+    budget = LiveBudget(
+        limit=settings.live_llm_daily_limit,
+        path=settings.budget_state_path(),
+        clock=clock,
+    )
     app.state.settings = settings
-    app.state.clock = clock_from_settings(settings.demo_today)
-    app.state.llm = build_llm(settings)
-    app.state.search = build_search(settings)
+    app.state.clock = clock
+    app.state.budget = budget
+    app.state.rate_limiter = RateLimiter()
+    app.state.llm = build_llm(settings, budget=budget)
+    app.state.search = build_search(settings, budget=budget)
     app.state.events = get_broker()
     conn = connect(settings.database_file())
     try:

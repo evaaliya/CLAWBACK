@@ -35,6 +35,15 @@ class Settings(BaseSettings):
     recorded_mode: bool = False
     cache_dir: str = "./.cache"
 
+    # Public-demo hardening (defaults safe for local / private runs).
+    demo_reset: str = ""  # "enabled" to allow POST /api/demo/reset
+    job_token: str = ""  # when set, POST /api/jobs/scan requires X-Job-Token
+    live_llm_daily_limit: int = 300
+    scan_target_url: str = ""  # when set, jobs/scan.py POSTs the endpoint
+    upload_max_bytes: int = 1_000_000
+    live_api_rate_limit: int = 30  # per-IP window for chat / prepare / cancel
+    live_api_rate_window_s: float = 60.0
+
     unused_days: int = Field(default=rules.UNUSED_DAYS)
     hot_deadline_days: int = Field(default=rules.HOT_DEADLINE_DAYS)
     minutes_saved_per_cancel: int = Field(default=rules.MINUTES_SAVED_PER_CANCEL)
@@ -54,6 +63,12 @@ class Settings(BaseSettings):
         if not path.is_absolute():
             path = ROOT / path
         return path
+
+    def demo_reset_enabled(self) -> bool:
+        return self.demo_reset.strip().lower() == "enabled"
+
+    def budget_state_path(self) -> Path:
+        return self.database_file().with_suffix(".live_budget.json")
 
 
 @lru_cache

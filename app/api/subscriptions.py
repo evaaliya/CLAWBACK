@@ -6,6 +6,7 @@ from fastapi import APIRouter, HTTPException, Request
 
 from app.db import connect
 from app.events import get_broker
+from app.hardening.http import enforce_live_api_rate
 from app.ingest.subscriptions import list_subscriptions
 from app.portal.errors import ActionUnavailable, ApprovalRequired
 from app.skill_forge import confirm_cancel, start_cancel
@@ -31,6 +32,7 @@ def get_subscriptions(request: Request) -> dict:
 
 @router.post("/subscriptions/{subscription_id}/cancel")
 def post_cancel(subscription_id: int, request: Request) -> dict:
+    enforce_live_api_rate(request)
     settings = request.app.state.settings
     clock = request.app.state.clock
     llm = request.app.state.llm

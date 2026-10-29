@@ -17,9 +17,20 @@ export async function blockExternalNetwork(page: Page, baseURL: string) {
   });
 }
 
+/** POST /api/demo/reset with retries — public demo allows 1 reset / 10 s. */
 export async function resetDemo(request: APIRequestContext) {
-  const res = await request.post("/api/demo/reset");
-  expect(res.ok()).toBeTruthy();
+  let lastStatus = 0;
+  for (let attempt = 0; attempt < 6; attempt++) {
+    const res = await request.post("/api/demo/reset");
+    lastStatus = res.status();
+    if (res.ok()) return;
+    if (res.status() === 429) {
+      await new Promise((r) => setTimeout(r, 11_000));
+      continue;
+    }
+    expect(res.ok(), `demo reset failed: HTTP ${res.status()}`).toBeTruthy();
+  }
+  expect(lastStatus, "demo reset still rate-limited after retries").toBe(200);
 }
 
 async function cancelMerchant(page: Page, merchant: string) {

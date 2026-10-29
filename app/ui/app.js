@@ -8,6 +8,7 @@ const deltaEl = $("#savings-delta");
 const subsEl = $("#subscriptions");
 const deadlinesEl = $("#deadlines");
 const recordedBadge = $("#recorded-badge");
+const demoResetBtn = $("#demo-reset");
 const skillsDrawer = $("#skills-drawer");
 const skillsBody = $("#skills-body");
 const backdrop = $("#drawer-backdrop");
@@ -451,15 +452,52 @@ function connectEvents() {
   });
   es.addEventListener("notification.new", () => refreshDeadlines());
   es.addEventListener("skill.saved", () => refreshSkills());
+  es.addEventListener("demo.reset", async () => {
+    await refreshAll();
+    appendMessage("agent", "Demo was reset. Refreshing shared state.");
+  });
   es.onerror = () => {
     // Browser will retry; no UI spam.
   };
 }
 
+function applyHealthBadge(health) {
+  if (!recordedBadge) return;
+  const label = health?.badge;
+  if (label) {
+    recordedBadge.textContent = label;
+    recordedBadge.title =
+      label.includes("budget")
+        ? "Live model budget exhausted; using cached responses"
+        : "Using cached model and search responses";
+    recordedBadge.classList.remove("hidden");
+  } else if (health?.recorded_mode || health?.live_budget_exhausted) {
+    recordedBadge.textContent = health.live_budget_exhausted
+      ? "recorded (live budget used)"
+      : "recorded";
+    recordedBadge.classList.remove("hidden");
+  } else {
+    recordedBadge.classList.add("hidden");
+  }
+}
+
+async function resetDemo() {
+  if (!window.confirm("Reset the shared demo for everyone? This cannot be undone.")) {
+    return;
+  }
+  try {
+    await api("POST", "/api/demo/reset");
+    await refreshAll();
+    appendMessage("agent", "Demo reset complete.");
+  } catch (err) {
+    appendMessage("agent", err.message || String(err));
+  }
+}
+
 async function boot() {
   try {
     const health = await api("GET", "/api/health");
-    if (health.recorded_mode) recordedBadge.classList.remove("hidden");
+    applyHealthBadge(health);
   } catch {
     /* ignore */
   }
@@ -484,5 +522,6 @@ $("#chat-form").addEventListener("submit", async (ev) => {
 $("#skills-toggle").addEventListener("click", openSkills);
 $("#skills-close").addEventListener("click", closeSkills);
 backdrop.addEventListener("click", closeSkills);
+if (demoResetBtn) demoResetBtn.addEventListener("click", resetDemo);
 
 boot();

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build reports/verify-<timestamp>.md: T1-T23 status from pytest (JUnit XML) and Playwright (JSON).
+"""Build reports/verify-<timestamp>.md: T1-T27 status from pytest (JUnit XML) and Playwright (JSON).
 
 A T-item is "closed" when every test named for it ran and passed, "failed" when any named test failed,
 and "open" when a named test did not run (missing or skipped).
@@ -35,6 +35,10 @@ TESTS = {
     "T21": ("agent_log complete", ["test_agent_log_complete"]),
     "T22": ("Restart keeps state", ["test_restart_keeps_state"]),
     "T23": ("Golden Path three times in a row", ["e2e_golden_path_x3"]),
+    "T24": ("Demo reset requires DEMO_RESET=enabled", ["test_reset_requires_flag"]),
+    "T25": ("Scan endpoint requires X-Job-Token when set", ["test_scan_endpoint_requires_job_token"]),
+    "T26": ("Ingest rejects oversized or disallowed uploads", ["test_upload_size_limit"]),
+    "T27": ("Live budget falls back visibly to recorded", ["test_live_budget_falls_back_visibly"]),
 }
 
 

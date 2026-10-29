@@ -14,6 +14,7 @@ from app.claim_writer import (
 )
 from app.db import connect
 from app.events import get_broker
+from app.hardening.http import enforce_live_api_rate
 from app.llm import resolve_model_ids
 
 router = APIRouter(tags=["claims"])
@@ -30,6 +31,7 @@ class PrepareBody(BaseModel):
 
 @router.post("/claims/prepare")
 def post_prepare_claim(body: PrepareBody, request: Request) -> dict:
+    enforce_live_api_rate(request)
     settings = request.app.state.settings
     clock = request.app.state.clock
     llm = request.app.state.llm

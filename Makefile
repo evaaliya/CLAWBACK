@@ -87,8 +87,9 @@ verify:
 	echo "report: $$OUT"; \
 	if [ $$PY_RC -ne 0 ] || [ $$E2E_RC -ne 0 ]; then exit 1; fi
 
+# Always linux/amd64: Nebius Serverless Endpoints pull amd64; local Apple Silicon must not ship arm64.
 docker-build:
-	docker build -t $(IMAGE) .
+	docker build --platform linux/amd64 -t $(IMAGE) .
 
 # Maps host 8000 → container 8000; passes through a local .env when present.
 docker-run: docker-build

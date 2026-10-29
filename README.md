@@ -12,7 +12,7 @@ All bank, mail and merchant systems are emulated. Nothing is sent to a real comp
 4. You ask to cancel a subscription. The agent reuses a skill it already learned and does it in seconds.
 5. The counter shows what was recovered.
 
-## Run it
+## Run it (judges — local)
 
 Requirements: Python 3.12, Node 20 (for Playwright only).
 
@@ -20,7 +20,8 @@ Requirements: Python 3.12, Node 20 (for Playwright only).
 cp .env.example .env     # set keys; RECORDED_MODE=true works without any keys
 make install
 make seed
-make up                  # http://localhost:8000
+make recorded            # offline Golden Path — http://localhost:8000
+# or: make up            # live Nebius + Tavily when keys are set
 ```
 
 | Command | What it does |
@@ -29,10 +30,25 @@ make up                  # http://localhost:8000
 | `make recorded` | Run with cached model and search responses (offline) |
 | `make seed` | Load the demo dataset from `demo/` into SQLite |
 | `make demo` | Reset the database to the seeded demo state |
-| `make scan` | Run the deadline scan once |
+| `make scan` | Run the deadline scan once (on demand) |
 | `make test` | Unit and integration tests |
 | `make e2e` | Playwright end-to-end tests in recorded mode |
 | `make verify` | Everything, plus the T1–T23 report in `reports/` |
+| `make docker-smoke` | Build `linux/amd64` image, run recorded container, health + Playwright |
+
+## Run it (judges — Nebius Serverless Endpoint)
+
+1. Push `main` so CI (`.github/workflows/image.yml`) builds and pushes `ghcr.io/<owner>/clawback:latest` for **linux/amd64**. Set the GHCR package visibility to **Public**.
+2. Create MysteryBox secrets whose payload keys are `NEBIUS_API_KEY` and `TAVILY_API_KEY`.
+3. Install and authenticate the Nebius CLI, then:
+
+```bash
+IMAGE=ghcr.io/<owner>/clawback:latest JOB_TOKEN=<optional> ./scripts/deploy_nebius.sh
+```
+
+The script uses `--auth none` so the printed URL opens in a normal browser (no token). Confirm with `curl -sf <url>/api/health`. Optional on-demand scan against that URL: `SCAN_TARGET_URL=<url> JOB_TOKEN=… ./scripts/deploy_scan_job.sh`.
+
+**Cost / state:** the endpoint burns VM money while running — stop when idle. Container disk is not persistent; every cold start re-seeds the demo. Full flags and stop/start/delete/logs: see the deploy script comments and (if present locally) `docs/DEPLOY.md`.
 
 ## Data egress
 

@@ -84,7 +84,7 @@ def test_recorded_mode_offline(seeded_conn, clock: Clock, block_network, demo_di
     opening = savings_summary(conn)
     assert opening["amount_cents"] == 9_600
 
-    receipt = (demo_dir / "receipts" / "soundhub-order-48213.txt").read_text(
+    receipt = (demo_dir / "receipts" / "replit-yearly-48213.txt").read_text(
         encoding="utf-8"
     )
     ingest_receipts(
@@ -92,8 +92,8 @@ def test_recorded_mode_offline(seeded_conn, clock: Clock, block_network, demo_di
         [
             {
                 "text": receipt,
-                "filename": "soundhub-order-48213.txt",
-                "recording_key": "receipt:soundhub-order-48213.txt",
+                "filename": "replit-yearly-48213.txt",
+                "recording_key": "receipt:replit-yearly-48213.txt",
             }
         ],
         llm=llm,
@@ -109,7 +109,7 @@ def test_recorded_mode_offline(seeded_conn, clock: Clock, block_network, demo_di
     conn.commit()
 
     purchase = conn.execute(
-        "SELECT id FROM purchases WHERE merchant = 'SoundHub' LIMIT 1"
+        "SELECT id FROM purchases WHERE merchant = 'Replit' LIMIT 1"
     ).fetchone()
     assert purchase is not None
     prepared = prepare_claim(
@@ -125,7 +125,7 @@ def test_recorded_mode_offline(seeded_conn, clock: Clock, block_network, demo_di
     conn.commit()
     approve_claim(conn, claim_id=prepared["claim_id"], clock=clock)
     conn.commit()
-    accept_refund(conn, merchant="SoundHub", clock=clock)
+    accept_refund(conn, merchant="Replit", clock=clock)
     conn.commit()
 
     _cancel(conn, clock, llm, "FitPulse")

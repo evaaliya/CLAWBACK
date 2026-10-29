@@ -21,7 +21,7 @@ _MERCHANT_ALIASES: list[tuple[re.Pattern[str], str, str]] = [
     (re.compile(r"CLOUDNEST", re.I), "CloudNest", "subscription"),
     (re.compile(r"FITPULSE", re.I), "FitPulse", "subscription"),
     (re.compile(r"TUNEBOX", re.I), "TuneBox", "subscription"),
-    (re.compile(r"SOUNDHUB", re.I), "SoundHub", "purchase"),
+    (re.compile(r"REPLIT", re.I), "Replit", "purchase"),
     (re.compile(r"GREENMART", re.I), "GreenMart", "other"),
     (re.compile(r"CITY TRANSIT", re.I), "City Transit", "other"),
 ]

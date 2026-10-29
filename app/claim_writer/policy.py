@@ -6,6 +6,7 @@ import sqlite3
 from typing import Any, Protocol
 
 from app.agent_log import log_action
+from app.claim_writer.validator import source_matches_merchant
 from app.clock import Clock
 from app.privacy.redact import build_policy_query
 from app.privacy.trace import search_traced
@@ -38,7 +39,7 @@ def web_search_policy(
         role="policy",
         model="tavily",
     )
-    sources = [
+    raw_sources = [
         {
             "title": r.get("title") or "",
             "url": r.get("url") or "",
@@ -46,6 +47,8 @@ def web_search_policy(
         }
         for r in results
     ]
+    # Discard hits whose domain/title do not correspond to this merchant.
+    sources = [s for s in raw_sources if source_matches_merchant(s, merchant)]
     log_action(
         conn,
         clock,
@@ -57,6 +60,7 @@ def web_search_policy(
             "jurisdiction": jurisdiction,
             "query": query,
             "result_count": len(sources),
+            "discarded": len(raw_sources) - len(sources),
             "urls": [s["url"] for s in sources if s["url"]],
         },
     )

@@ -7,7 +7,7 @@ from app.privacy.redact import build_policy_query
 
 def test_tavily_query_has_no_personal_data() -> None:
     purchase = {
-        "merchant": "SoundHub",
+        "merchant": "Replit",
         "buyer_name": "Aliya Karimova",
         "email": "aliya.k@example.com",
         "card_digits": "4417",

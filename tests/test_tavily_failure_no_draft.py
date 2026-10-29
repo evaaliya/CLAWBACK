@@ -10,12 +10,12 @@ from app.llm.fake import FakeLLM
 from app.search.fake import FakeSearch
 
 
-def _insert_soundhub(conn) -> int:
+def _insert_replit(conn) -> int:
     cur = conn.execute(
         """
         INSERT INTO purchases
             (merchant, item, date, amount_cents, currency, return_deadline, status)
-        VALUES ('SoundHub', 'Wireless over-ear headphones SH-700',
+        VALUES ('Replit', 'Core yearly subscription',
                 '2026-09-30', 23500, 'USD', '2026-10-30', 'open')
         """
     )
@@ -38,7 +38,7 @@ class FailingLLM(FakeLLM):
 
 
 def test_tavily_failure_no_draft(conn, clock: Clock) -> None:
-    purchase_id = _insert_soundhub(conn)
+    purchase_id = _insert_replit(conn)
 
     # Search failure: error card, no claim row, no fallback to model memory.
     search_fail = FailingSearch()
@@ -65,7 +65,7 @@ def test_tavily_failure_no_draft(conn, clock: Clock) -> None:
         default_results=[
             {
                 "title": "Policy",
-                "url": "https://example.com/soundhub/returns",
+                "url": "https://replit.com/help/answers/refunds",
                 "excerpt": "30-day return window for a full refund.",
             }
         ]

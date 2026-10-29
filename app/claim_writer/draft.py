@@ -134,7 +134,9 @@ def _draft_prompt(
         '{"text":"...","citations":[{"title":"...","url":"...","excerpt":"..."}]}.\n'
         "Use ONLY the purchase facts and the policy sources below. "
         "Every citation URL must come from the sources. "
-        "Include item, date, and amount_cents in the text.\n"
+        "Include item, date, and amount_cents in the text. "
+        "Ask only for a refund of the subscription fee. "
+        "Do not mention or request Agent/AI usage charges or domain purchases.\n"
         f"purchase={json.dumps(facts, ensure_ascii=False)}\n"
         f"sources={json.dumps(sources, ensure_ascii=False)}"
     )

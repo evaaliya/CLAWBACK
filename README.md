@@ -39,7 +39,9 @@ Deadline scan: `make scan` / `POST /api/jobs/scan` / `python jobs/scan.py` — *
 
 ## Tavily
 
-At claim prepare time, `web_search_policy` (`app/claim_writer/policy.py`) calls Tavily (`POST https://api.tavily.com/search`) with a query built only from `{merchant, topic, jurisdiction}`. The draft validator requires at least one citation whose URL came from those search results in the current session. If search fails, the UI shows an error card — policy text is never taken from model memory. SoundHub (fictional) uses a labelled offline fixture in recorded mode.
+At claim prepare time, `web_search_policy` (`app/claim_writer/policy.py`) calls Tavily (`POST https://api.tavily.com/search`) with a query built only from `{merchant, topic, jurisdiction}`. The draft validator requires at least one citation whose URL came from those search results in the current session, and whose domain or title matches the merchant. If search fails, the UI shows an error card — policy text is never taken from model memory.
+
+Purchase data is fictional; the merchant refund policy is fetched live via Tavily.
 
 ## What is real and what is emulated
 
@@ -47,7 +49,7 @@ At claim prepare time, `web_search_policy` (`app/claim_writer/policy.py`) calls 
 | --- | --- |
 | Agent logic, SQLite memory, approval gate, Skill Forge, savings counter | Bank statement / email import |
 | Nebius Token Factory model calls (when keyed) | Merchant websites and “send” (DB outbox + mock portal) |
-| Tavily search (when keyed; real retailers) | SoundHub store and its return policy (fictional UNVERIFIED fixture) |
+| Tavily search (when keyed) — e.g. Replit refund policy | Demo purchase / receipt (fictional buyer and amounts) |
 
 ## Run it (judges — local)
 

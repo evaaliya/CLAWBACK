@@ -11,14 +11,16 @@ e2e therefore stays offline as long as alias entries in demo/recorded/*.json
 remain correct. This script re-fills those aliases from live Nebius Token Factory
 calls under the post-M9 scrubbed prompts.
 
-SoundHub search stays a labelled fixture: live Tavily cannot find a fictional store
-(see docs/TOOLING.md). Pass --refresh-search only to probe Tavily; the fixture is
-restored unless --accept-live-search is also set and results are non-empty.
+Replit is a real merchant; pass --refresh-search --accept-live-search to replace
+search.json with live Tavily hits (merchant-matched). Without those flags the
+existing recorded search entry is kept for drafting.
 
 Usage (from repo root, with .env keys):
 
   set -a && source .env && set +a
   RECORDED_MODE=false .venv/bin/python scripts/rerecord_golden_path.py
+  RECORDED_MODE=false .venv/bin/python scripts/rerecord_golden_path.py \\
+      --refresh-search --accept-live-search
 """
 
 from __future__ import annotations
@@ -46,6 +48,7 @@ from app.llm.factory import resolve_model_ids
 from app.llm.nebius import NebiusLLM
 from app.privacy.redact import build_policy_query
 from app.claim_writer.draft import draft_claim, super_validate
+from app.claim_writer.validator import source_matches_merchant
 
 
 class CapturingLLM:
@@ -99,7 +102,7 @@ def main() -> int:
     parser.add_argument(
         "--refresh-search",
         action="store_true",
-        help="Probe live Tavily for the SoundHub policy query (fixture kept by default)",
+        help="Probe live Tavily for the Replit policy query",
     )
     parser.add_argument(
         "--accept-live-search",
@@ -125,8 +128,10 @@ def main() -> int:
     llm = CapturingLLM(live)
     clock = Clock(today=settings.demo_today)
 
-    receipt_path = ROOT / "demo" / "receipts" / "soundhub-order-48213.txt"
+    receipt_path = ROOT / "demo" / "receipts" / "replit-yearly-48213.txt"
     receipt_text = receipt_path.read_text(encoding="utf-8")
+    query = build_policy_query("Replit", "return refund", settings.policy_jurisdiction)
+    item = "Core yearly subscription"
 
     with tempfile.TemporaryDirectory() as tmp:
         db_path = Path(tmp) / "rerecord.db"
@@ -145,7 +150,7 @@ def main() -> int:
 
         sources = json.loads(
             (ROOT / "demo" / "recorded" / "search.json").read_text(encoding="utf-8")
-        )["SoundHub return refund policy US"]
+        )[query]
 
         draft = draft_claim(
             conn,
@@ -182,14 +187,13 @@ def main() -> int:
         updates[receipt_key]["amount_cents"] = 23500
         updates[receipt_key]["currency"] = "USD"
         updates[receipt_key]["date"] = "2026-09-30"
-        updates[receipt_key]["merchant"] = "SoundHub"
-        updates[receipt_key]["item"] = "Wireless over-ear headphones SH-700"
+        updates[receipt_key]["merchant"] = "Replit"
+        updates[receipt_key]["item"] = item
     # Super is advisory in code, but a false ok still appends reasons and can
     # reject the draft in prepare_claim. Live Super often rejects demo dates
     # (DEMO_TODAY / future purchase). Pin ok for recorded Golden Path.
     updates["claim:validate"] = {"ok": True, "reasons": []}
     # Code validator requires draft text to contain purchase.item / amount / date.
-    item = "Wireless over-ear headphones SH-700"
     for draft_key in ("claim:draft", "claim:draft:retry"):
         draft_body = updates.get(draft_key)
         if isinstance(draft_body, dict) and isinstance(draft_body.get("text"), str):
@@ -203,33 +207,42 @@ def main() -> int:
                 text = text.rstrip(".") + " Amount: 23500 cents."
             if "2026-09-30" not in text:
                 text = text.rstrip(".") + " Purchase date: 2026-09-30."
+            # Subscription fee only — never Agent/AI usage.
+            lowered = text.lower()
+            if "agent" in lowered or "ai usage" in lowered:
+                text = (
+                    f"Please refund my {item} purchased on 2026-09-30 "
+                    f"for 23500 cents (USD). Your policy allows subscription "
+                    f"payments to be refunded within 30 days of purchase. "
+                    f"I am requesting a refund of the subscription fee only."
+                )
             draft_body["text"] = text
             updates[draft_key] = draft_body
     _merge_llm(llm_path, updates)
     print(f"updated {llm_path} keys: {sorted(updates)}")
 
-    query = build_policy_query("SoundHub", "return refund", settings.policy_jurisdiction)
     print("policy query:", repr(query))
     if args.refresh_search:
         if not settings.tavily_api_key:
-            print("TAVILY_API_KEY missing; leaving search.json fixture", file=sys.stderr)
+            print("TAVILY_API_KEY missing; leaving search.json", file=sys.stderr)
         else:
             from app.search.tavily import TavilySearch
 
             search = TavilySearch(api_key=settings.tavily_api_key)
             results = search.search(query)
-            print("live Tavily hits:", len(results))
-            if args.accept_live_search and results:
+            matched = [r for r in results if source_matches_merchant(r, "Replit")]
+            print("live Tavily hits:", len(results), "merchant-matched:", len(matched))
+            if args.accept_live_search and matched:
                 search_path = ROOT / "demo" / "recorded" / "search.json"
                 data = json.loads(search_path.read_text(encoding="utf-8"))
-                data[query] = results
+                data[query] = matched
                 search_path.write_text(
                     json.dumps(data, ensure_ascii=False, indent=2) + "\n",
                     encoding="utf-8",
                 )
                 print(f"wrote live search to {search_path}")
             else:
-                print("kept SoundHub UNVERIFIED fixture in search.json")
+                print("kept existing Replit entry in search.json")
 
     return 0
 

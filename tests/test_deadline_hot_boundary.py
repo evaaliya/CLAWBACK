@@ -1,4 +1,4 @@
-"""T5 — Headphones are hot with 3 days left; 8 days is not hot."""
+"""T5 — Replit subscription is hot with 3 days left; 8 days is not hot."""
 
 from __future__ import annotations
 
@@ -39,10 +39,10 @@ def test_deadline_hot_boundary(conn, clock: Clock) -> None:
     not_hot_deadline = (today + timedelta(days=8)).isoformat()
     boundary_hot = (today + timedelta(days=HOT_DEADLINE_DAYS)).isoformat()
 
-    headphones_id = _insert_purchase(
+    replit_id = _insert_purchase(
         conn,
-        merchant="SoundHub",
-        item="Wireless over-ear headphones SH-700",
+        merchant="Replit",
+        item="Core yearly subscription",
         amount_cents=23500,
         return_deadline=hot_deadline,
     )
@@ -76,21 +76,21 @@ def test_deadline_hot_boundary(conn, clock: Clock) -> None:
     conn.commit()
 
     notified = {n["purchase_id"] for n in result["notifications"]}
-    assert headphones_id in notified
+    assert replit_id in notified
     assert boundary_id in notified
     assert far_id not in notified
 
-    headphones_card = next(
-        n for n in result["notifications"] if n["purchase_id"] == headphones_id
+    replit_card = next(
+        n for n in result["notifications"] if n["purchase_id"] == replit_id
     )
-    assert headphones_card["days_left"] == 3
-    assert headphones_card["payload"]["type"] == "deadline_alert"
-    assert "Prepare claim" in headphones_card["payload"]["actions"]
+    assert replit_card["days_left"] == 3
+    assert replit_card["payload"]["type"] == "deadline_alert"
+    assert "Prepare claim" in replit_card["payload"]["actions"]
 
     rows = conn.execute(
         "SELECT purchase_id, kind FROM notifications ORDER BY purchase_id"
     ).fetchall()
     notified_ids = {r["purchase_id"] for r in rows}
-    assert headphones_id in notified_ids
+    assert replit_id in notified_ids
     assert boundary_id in notified_ids
     assert far_id not in notified_ids

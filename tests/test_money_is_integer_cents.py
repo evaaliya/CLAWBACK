@@ -47,11 +47,11 @@ def test_money_is_integer_cents(conn, demo_dir: Path) -> None:
         assert row["t"] == "integer"
         assert isinstance(row["amount_cents"], int)
 
-    soundhub = conn.execute(
+    replit = conn.execute(
         """
         SELECT amount_cents FROM transactions
-        WHERE merchant_norm = 'SoundHub'
+        WHERE merchant_norm = 'Replit'
         """
     ).fetchone()
-    assert soundhub is not None
-    assert soundhub["amount_cents"] == -23500
+    assert replit is not None
+    assert replit["amount_cents"] == -23500

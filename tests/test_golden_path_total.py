@@ -12,12 +12,12 @@ from app.search.fake import FakeSearch
 from app.skill_forge.cancel import confirm_cancel, start_cancel
 
 
-SOUNDHUB_SOURCES = [
+REPLIT_SOURCES = [
     {
-        "title": "SoundHub Returns and Refunds (fixture)",
-        "url": "https://example.com/soundhub/returns",
+        "title": "Am I eligible for a refund? | Replit",
+        "url": "https://replit.com/help/answers/refunds",
         "excerpt": (
-            "Unused or lightly used items can be returned within 30 days "
+            "Subscription payments may be refunded within 30 days "
             "of purchase for a full refund to the original payment method."
         ),
     }
@@ -25,16 +25,16 @@ SOUNDHUB_SOURCES = [
 
 CLAIM_DRAFT = {
     "text": (
-        "Please refund my Wireless over-ear headphones SH-700 purchased on "
-        "2026-09-30 for 23500 cents (USD). Your policy allows unused items "
-        "to be returned within 30 days for a full refund."
+        "Please refund my Core yearly subscription purchased on "
+        "2026-09-30 for 23500 cents (USD). Your policy allows subscription "
+        "payments to be refunded within 30 days. Subscription fee only."
     ),
     "citations": [
         {
-            "title": "SoundHub Returns and Refunds (fixture)",
-            "url": "https://example.com/soundhub/returns",
+            "title": "Am I eligible for a refund? | Replit",
+            "url": "https://replit.com/help/answers/refunds",
             "excerpt": (
-                "Unused or lightly used items can be returned within 30 days "
+                "Subscription payments may be refunded within 30 days "
                 "of purchase for a full refund to the original payment method."
             ),
         }
@@ -96,19 +96,19 @@ def test_golden_path_total(seeded_conn, clock: Clock) -> None:
         }
     )
     search = FakeSearch(
-        recordings={"SoundHub return refund policy US": SOUNDHUB_SOURCES}
+        recordings={"Replit return refund policy US": REPLIT_SOURCES}
     )
 
     # Cancel StreamFlix (Ultra → learn settings-menu) and CloudNest (skill reuse).
     _cancel(conn, clock, llm, "StreamFlix")
     _cancel(conn, clock, llm, "CloudNest")
 
-    # SoundHub claim → approve → simulated refund.
+    # Replit claim → approve → simulated refund.
     cur = conn.execute(
         """
         INSERT INTO purchases
             (merchant, item, date, amount_cents, currency, return_deadline, status)
-        VALUES ('SoundHub', 'Wireless over-ear headphones SH-700',
+        VALUES ('Replit', 'Core yearly subscription',
                 '2026-09-30', 23500, 'USD', '2026-10-30', 'open')
         """
     )
@@ -129,7 +129,7 @@ def test_golden_path_total(seeded_conn, clock: Clock) -> None:
     claim_id = prepared["claim_id"]
     approve_claim(conn, claim_id=claim_id, clock=clock)
     conn.commit()
-    accept_refund(conn, merchant="SoundHub", clock=clock)
+    accept_refund(conn, merchant="Replit", clock=clock)
     conn.commit()
 
     # FitPulse via saved account-membership skill.

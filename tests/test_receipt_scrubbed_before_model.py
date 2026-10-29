@@ -10,7 +10,7 @@ from app.llm.fake import FakeLLM
 
 
 RECEIPT = """\
-ACME AUDIO
+ACME SOFTWARE
 Order confirmation
 
 Order number: 99
@@ -19,17 +19,16 @@ Payment: card ending 4417
 Customer: Aliya Karimova <aliya.k@example.com>
 Phone: +1-555-010-9988
 
-Item: Wireless over-ear headphones
+Item: Pro yearly subscription
 Quantity: 1
 Price: $235.00 USD
 
 Ship to: Aliya K., 12 Lenin Street, Bishkek
-Delivered: 2026-10-04
 """
 
 PARSED = {
-    "merchant": "Acme Audio",
-    "item": "Wireless over-ear headphones",
+    "merchant": "Acme Software",
+    "item": "Pro yearly subscription",
     "date": "2026-09-30",
     "amount_cents": 23500,
     "currency": "USD",

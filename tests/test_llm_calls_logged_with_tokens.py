@@ -10,7 +10,7 @@ from app.llm.fake import FakeLLM
 
 
 PARSED = {
-    "merchant": "SoundHub",
+    "merchant": "Replit",
     "item": "Headphones",
     "date": "2026-09-30",
     "amount_cents": 23500,
@@ -25,7 +25,7 @@ def test_llm_calls_logged_with_tokens(conn, clock: Clock) -> None:
     llm = FakeLLM(default_response=json.dumps(PARSED))
     parse_and_store_receipt(
         conn,
-        text="SOUNDHUB\nPrice: $235.00 USD\nOrder date: 2026-09-30\n",
+        text="REPLIT\nPrice: $235.00 USD\nOrder date: 2026-09-30\n",
         llm=llm,
         clock=clock,
         receipt_path="log-receipt.txt",
@@ -52,5 +52,5 @@ def test_llm_calls_logged_with_tokens(conn, clock: Clock) -> None:
         assert isinstance(payload["latency_ms"], int)
         assert "recorded" in payload
         blob = json.dumps(payload)
-        assert "SOUNDHUB" not in blob
+        assert "REPLIT" not in blob
         assert "prompt" not in payload

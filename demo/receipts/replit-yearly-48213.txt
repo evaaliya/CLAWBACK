@@ -1,0 +1,16 @@
+REPLIT
+Order confirmation / receipt
+
+Order number: 48213
+Order date: 2026-09-30
+Payment: card ending 0000
+
+Item: Core yearly subscription (software)
+Quantity: 1
+Price: $235.00 USD
+Tax included
+
+Bill to: Morgan Hale, Demo City
+
+This receipt is for a yearly software subscription only.
+Keep this receipt as proof of purchase.

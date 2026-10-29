@@ -8,6 +8,6 @@
     {"id": "streamflix-cancel", "kind": "cancel", "merchant": "StreamFlix", "monthly_cents": 1500, "amount_cents": 18000, "time_saved_min": 60, "path": "ultra, learns settings-menu skill"},
     {"id": "cloudnest-cancel", "kind": "cancel", "merchant": "CloudNest", "monthly_cents": 1600, "amount_cents": 19200, "time_saved_min": 60, "path": "ultra or saved settings-menu skill"},
     {"id": "fitpulse-cancel", "kind": "cancel", "merchant": "FitPulse", "monthly_cents": 1200, "amount_cents": 14400, "time_saved_min": 60, "path": "saved account-membership skill, under 5 seconds"},
-    {"id": "soundhub-refund", "kind": "refund", "merchant": "SoundHub", "amount_cents": 23500, "time_saved_min": 120, "path": "tavily policy, ultra draft, user approval"}
+    {"id": "replit-refund", "kind": "refund", "merchant": "Replit", "amount_cents": 23500, "time_saved_min": 120, "path": "tavily policy, ultra draft, user approval"}
   ]
 }

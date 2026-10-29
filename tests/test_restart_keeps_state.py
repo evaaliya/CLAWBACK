@@ -25,7 +25,7 @@ def test_restart_keeps_state(db_path: Path, demo_dir: Path, clock: Clock) -> Non
         """
         INSERT INTO purchases
             (merchant, item, date, amount_cents, currency, return_deadline, status)
-        VALUES ('SoundHub', 'Wireless over-ear headphones SH-700',
+        VALUES ('Replit', 'Core yearly subscription',
                 '2026-09-30', 23500, 'USD', '2026-10-30', 'open')
         """
     )
@@ -36,7 +36,7 @@ def test_restart_keeps_state(db_path: Path, demo_dir: Path, clock: Clock) -> Non
         INSERT INTO claims (purchase_id, draft_text, sources_json, status)
         VALUES (?, ?, ?, 'draft')
         """,
-        (purchase_id, "Please refund my headphones.", json.dumps(sources)),
+        (purchase_id, "Please refund my Core yearly subscription.", json.dumps(sources)),
     )
     claim_id = int(claim_cur.lastrowid)
 
@@ -72,7 +72,7 @@ def test_restart_keeps_state(db_path: Path, demo_dir: Path, clock: Clock) -> Non
         assert claim is not None
         assert claim["status"] == "draft"
         assert claim["purchase_id"] == purchase_id
-        assert "headphones" in claim["draft_text"].lower()
+        assert "subscription" in claim["draft_text"].lower()
 
         notifs = conn2.execute(
             "SELECT id, kind, purchase_id, day, payload_json FROM notifications ORDER BY id"

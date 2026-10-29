@@ -10,24 +10,24 @@ from app.llm.fake import FakeLLM
 from app.search.fake import FakeSearch
 
 
-SOUNDHUB_SOURCES = [
+REPLIT_SOURCES = [
     {
-        "title": "SoundHub Returns and Refunds (fixture)",
-        "url": "https://example.com/soundhub/returns",
+        "title": "Am I eligible for a refund? | Replit",
+        "url": "https://replit.com/help/answers/refunds",
         "excerpt": (
-            "Unused or lightly used items can be returned within 30 days "
+            "Subscription payments may be refunded within 30 days "
             "of purchase for a full refund to the original payment method."
         ),
     }
 ]
 
 
-def _insert_soundhub(conn) -> int:
+def _insert_replit(conn) -> int:
     cur = conn.execute(
         """
         INSERT INTO purchases
             (merchant, item, date, amount_cents, currency, return_deadline, status)
-        VALUES ('SoundHub', 'Wireless over-ear headphones SH-700',
+        VALUES ('Replit', 'Core yearly subscription',
                 '2026-09-30', 23500, 'USD', '2026-10-30', 'open')
         """
     )
@@ -36,9 +36,9 @@ def _insert_soundhub(conn) -> int:
 
 
 def test_claim_rejected_without_citations(conn, clock: Clock) -> None:
-    purchase_id = _insert_soundhub(conn)
+    purchase_id = _insert_replit(conn)
     search = FakeSearch(
-        recordings={"SoundHub return refund policy US": SOUNDHUB_SOURCES}
+        recordings={"Replit return refund policy US": REPLIT_SOURCES}
     )
     # Ultra returns a draft with empty citations — validator must reject; no row.
     llm = FakeLLM(
@@ -46,7 +46,7 @@ def test_claim_rejected_without_citations(conn, clock: Clock) -> None:
             "claim:draft": json.dumps(
                 {
                     "text": (
-                        "Please refund my Wireless over-ear headphones SH-700 "
+                        "Please refund my Core yearly subscription "
                         "purchased on 2026-09-30 for 23500 cents."
                     ),
                     "citations": [],
@@ -55,7 +55,7 @@ def test_claim_rejected_without_citations(conn, clock: Clock) -> None:
             "claim:draft:retry": json.dumps(
                 {
                     "text": (
-                        "Please refund my Wireless over-ear headphones SH-700 "
+                        "Please refund my Core yearly subscription "
                         "purchased on 2026-09-30 for 23500 cents."
                     ),
                     "citations": [],

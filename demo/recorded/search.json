@@ -1,15 +1,30 @@
 {
-  "_note": "FakeSearch recordings for RECORDED_MODE. Keys are exact policy_query strings.",
-  "SoundHub return refund policy US": [
+  "_note": "FakeSearch recordings for RECORDED_MODE. Keys are exact policy_query strings. Replit policy from https://replit.com/help/answers/refunds (live Tavily / page text).",
+  "Replit return refund policy US": [
     {
-      "title": "SoundHub Returns and Refunds (fixture)",
-      "url": "https://example.com/soundhub/returns",
-      "excerpt": "Unused or lightly used items can be returned within 30 days of purchase for a full refund to the original payment method. Contact support with your order number."
+      "title": "Terms of Service (ToS) | Replit",
+      "url": "https://replit.com/terms-of-service",
+      "excerpt": "c. Refunds\n\nWe allow for full refunds for subscription payments made within 30 days of purchase. However, Usage-Based Billing (UBB) charges are non-refundable, as they reflect metered usage that has already occurred. Refunds are only available for the most recent subscription charge and do not apply to partial usage or past billing cycles. To request a refund, contact our support team ((/cdn-cgi/l/email-protection)) with your account details and invoice number. [...] Replit holds, in its sole discretion, the right to suspend or terminate your account. This may occur for various reasons, including but not limited to violations of these Terms, prohibited conduct, inactivity, or any other actions that Replit deems as detrimental to the Service or its users. In such cases, Replit will not refund fees that you have already paid. Upon termination, your right to use the Service will cease immediately.\n\nd. Survival [...] If we are unable to resolve the dispute, either of us may commence arbitration with National Arbitration and Mediation (“NAM”) under its Comprehensive Dispute Resolution Rules and Procedures, available here. The arbitration will be conducted in writing, remotely (e.g. videoconference), in San Francisco, California, United States, or at a location mutually agreed upon by you and Replit. The arbitration will be conducted by a sole arbitrator. Payment of filing fees, administrative fees, and"
     },
     {
-      "title": "SoundHub Warranty (fixture)",
-      "url": "https://example.com/soundhub/warranty",
-      "excerpt": "Headphones carry a one-year limited warranty against manufacturing defects."
+      "title": "replit.com is rated \"Average\" with 2.8 / 5 on Trustpilot",
+      "url": "https://au.trustpilot.com/review/replit.com?page=2",
+      "excerpt": "The billing policy is also something people should understand before spending heavily. Replit’s published terms say subscription payments can be refunded within 30 days, but usage-based charges are generally treated as non-refundable because the compute has already been consumed. [...] I have requested a full refund under Replit’s 30-day subscription policy and raised a dispute with my bank. Replit needs to refund this charge and fix its payment portal UI. [...] I would strongly recommend that anyone considering Replit:  \n  \n keep strict spending limits;  \n create backups/checkpoints before every Agent change;  \n verify every claimed completion manually;  \n do not let Agent make large uncontrolled changes to an existing working project; and  \n understand the usage refund policy before spending significant amounts."
+    },
+    {
+      "title": "Terms of Service (ToS) - Feb 23, 2026 | Replit",
+      "url": "https://replit.com/terms-of-service-02-23-2026",
+      "excerpt": "3. Refunds\n\nWe allow for full refunds for subscription payments made within 30 days of purchase. However, Usage-Based Billing (UBB) charges are non-refundable, as they reflect metered usage that has already occurred. Refunds are only available for the most recent subscription charge and do not apply to partial usage or past billing cycles. To request a refund, contact our support team (support@repl.it) with your account details and invoice number.\n\n4. Extensions [...] Replit holds, in its sole discretion, the right to suspend or terminate your account. This may occur for various reasons, including but not limited to violations of these Terms, prohibited conduct, inactivity, or any other actions that Replit deems as detrimental to the platform or its users. In such cases, Replit will not refund fees that you have already paid.\n\n4. Survival [...] 4. Survival\n\nAll provisions of these Terms which by their nature should survive termination shall survive termination, including, without limitation, ownership provisions, warranty disclaimers, indemnity, and limitations of liability.\n\n5. Deprecation of Service Features\n\nReplit reserves the right to modify, deprecate, or remove features of the Service at any time and for any reason; Replit will not refund any fees paid.\n\n## Limitations and Disclaimers"
+    },
+    {
+      "title": "Billing and refunds - Replit",
+      "url": "https://docs.replit.com/help/billing-and-refunds",
+      "excerpt": "Agent and AI usage charges are non-refundable, because each charge reflects compute that was already used.\n Custom domain registration fees are non-refundable.\n\nFor subscription-fee refunds, contact Replit Support from your registered email and include your reason for the request. Cancel your subscription first from Billing in Settings.\n\nExact subscription refund windows and eligibility are confirmed by the support team for your specific account and plan. [...] I was charged for Agent or AI usage I didn't expect—can I get a refund?\n\nAgent and AI usage charges are non-refundable, because each charge reflects compute that Replit already used to run your tasks. You can prevent future surprises: [...] Custom domain registration fees are non-refundable, because domain registrations involve third-party costs that can’t be reversed once processed.If you registered a domain by mistake or want to transfer it, contact Replit Support with your domain name and the email linked to your account. The team will explain your options.\n\nI paid my invoice but my account is still suspended—when will it unlock?\n\nBilling holds can take a short time to clear after a payment is confirmed. Try these steps:"
+    },
+    {
+      "title": "Am I eligible for a refund? | Replit",
+      "url": "https://replit.com/help/answers/refunds",
+      "excerpt": "A clear path forward\n\n# Am I eligible for a refund?\n\nYou may be able to get a refund for a subscription payment. Subscription payments may be refunded within 30 days of purchase. For a monthly subscription, only the latest payment may qualify. A yearly subscription cannot be refunded after 30 days. Agent and AI usage charges, and domain purchases, cannot be refunded.\n\nVerified·RH-0093·v3 [...] Top up credit purchases may be refunded only if the entire top up remains unused. If any credits from that top up have been used, the purchase is not eligible for a refund, including a partial refund of the remaining credits.\n\n## Did this get you unstuck?\n\n \n\n## Still stuck?\n\nSee what to include and open a support ticket.\n\nIf this page did not solve it, contact Support and describe what you were trying to do and what happened, in your own words. You do not need to gather anything in advance."
     }
   ]
 }

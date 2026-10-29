@@ -11,12 +11,12 @@ from app.rules import MINUTES_SAVED_PER_CLAIM
 from app.search.fake import FakeSearch
 
 
-SOUNDHUB_SOURCES = [
+REPLIT_SOURCES = [
     {
-        "title": "SoundHub Returns and Refunds (fixture)",
-        "url": "https://example.com/soundhub/returns",
+        "title": "Am I eligible for a refund? | Replit",
+        "url": "https://replit.com/help/answers/refunds",
         "excerpt": (
-            "Unused or lightly used items can be returned within 30 days "
+            "Subscription payments may be refunded within 30 days "
             "of purchase for a full refund to the original payment method. "
             "Contact support with your order number."
         ),
@@ -24,12 +24,12 @@ SOUNDHUB_SOURCES = [
 ]
 
 
-def _insert_soundhub(conn) -> int:
+def _insert_replit(conn) -> int:
     cur = conn.execute(
         """
         INSERT INTO purchases
             (merchant, item, date, amount_cents, currency, return_deadline, status)
-        VALUES ('SoundHub', 'Wireless over-ear headphones SH-700',
+        VALUES ('Replit', 'Core yearly subscription',
                 '2026-09-30', 23500, 'USD', '2026-10-30', 'open')
         """
     )
@@ -40,16 +40,16 @@ def _insert_soundhub(conn) -> int:
 def _good_draft() -> dict:
     return {
         "text": (
-            "Please refund my Wireless over-ear headphones SH-700 purchased on "
-            "2026-09-30 for 23500 cents (USD). Your policy allows unused items "
-            "to be returned within 30 days for a full refund."
+            "Please refund my Core yearly subscription purchased on "
+            "2026-09-30 for 23500 cents (USD). Your policy allows subscription "
+            "payments to be refunded within 30 days. Subscription fee only."
         ),
         "citations": [
             {
-                "title": "SoundHub Returns and Refunds (fixture)",
-                "url": "https://example.com/soundhub/returns",
+                "title": "Am I eligible for a refund? | Replit",
+                "url": "https://replit.com/help/answers/refunds",
                 "excerpt": (
-                    "Unused or lightly used items can be returned within 30 days "
+                    "Subscription payments may be refunded within 30 days "
                     "of purchase for a full refund to the original payment method."
                 ),
             }
@@ -58,9 +58,9 @@ def _good_draft() -> dict:
 
 
 def test_approve_to_outbox_to_refund(conn, clock: Clock) -> None:
-    purchase_id = _insert_soundhub(conn)
+    purchase_id = _insert_replit(conn)
     search = FakeSearch(
-        recordings={"SoundHub return refund policy US": SOUNDHUB_SOURCES}
+        recordings={"Replit return refund policy US": REPLIT_SOURCES}
     )
     llm = FakeLLM(
         recordings={
@@ -91,7 +91,7 @@ def test_approve_to_outbox_to_refund(conn, clock: Clock) -> None:
     ).fetchone()
     assert outbox is not None
     assert outbox["status"] == "queued"
-    assert "headphones" in outbox["body"].lower() or "23500" in outbox["body"]
+    assert "subscription" in outbox["body"].lower() or "23500" in outbox["body"]
 
     claim = conn.execute(
         "SELECT status, approved_at FROM claims WHERE id = ?", (claim_id,)
@@ -99,7 +99,7 @@ def test_approve_to_outbox_to_refund(conn, clock: Clock) -> None:
     assert claim["status"] == "sent"
     assert claim["approved_at"] is not None
 
-    refunded = accept_refund(conn, merchant="SoundHub", clock=clock)
+    refunded = accept_refund(conn, merchant="Replit", clock=clock)
     conn.commit()
     assert refunded["status"] == "refund_accepted"
 
@@ -124,6 +124,6 @@ def test_approve_to_outbox_to_refund(conn, clock: Clock) -> None:
     ).fetchone()
     assert event is not None
     assert event["kind"] == "refund"
-    assert event["merchant"] == "SoundHub"
+    assert event["merchant"] == "Replit"
     assert event["amount_cents"] == 23500
     assert event["time_saved_min"] == MINUTES_SAVED_PER_CLAIM

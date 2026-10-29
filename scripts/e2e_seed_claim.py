@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Insert a SoundHub draft claim for e2e_claim_card (no LLM required)."""
+"""Insert a Replit draft claim for e2e_claim_card (no LLM required)."""
 
 from __future__ import annotations
 
@@ -17,9 +17,9 @@ from app.db import connect, init_db
 
 SOURCES = [
     {
-        "title": "SoundHub Returns and Refunds (fixture)",
-        "url": "https://example.com/soundhub/returns",
-        "excerpt": "Unused items can be returned within 30 days for a full refund.",
+        "title": "Am I eligible for a refund? | Replit",
+        "url": "https://replit.com/help/answers/refunds",
+        "excerpt": "Subscription payments may be refunded within 30 days of purchase.",
     }
 ]
 
@@ -34,7 +34,7 @@ def main() -> None:
             """
             SELECT c.id FROM claims c
             JOIN purchases p ON p.id = c.purchase_id
-            WHERE p.merchant = 'SoundHub' AND c.status = 'draft'
+            WHERE p.merchant = 'Replit' AND c.status = 'draft'
             """
         ).fetchone()
         if existing:
@@ -42,7 +42,7 @@ def main() -> None:
             return
 
         purchase = conn.execute(
-            "SELECT id FROM purchases WHERE merchant = 'SoundHub' LIMIT 1"
+            "SELECT id FROM purchases WHERE merchant = 'Replit' LIMIT 1"
         ).fetchone()
         if purchase is None:
             cur = conn.execute(
@@ -50,7 +50,7 @@ def main() -> None:
                 INSERT INTO purchases
                     (merchant, item, date, amount_cents, currency,
                      return_deadline, status)
-                VALUES ('SoundHub', 'Wireless over-ear headphones SH-700',
+                VALUES ('Replit', 'Core yearly subscription',
                         '2026-09-30', 23500, 'USD', '2026-10-30', 'open')
                 """
             )
@@ -59,9 +59,9 @@ def main() -> None:
             purchase_id = int(purchase["id"])
 
         draft = (
-            "Please refund my Wireless over-ear headphones SH-700 purchased on "
-            "2026-09-30 for 23500 cents (USD). Your return policy allows a "
-            "full refund within 30 days."
+            "Please refund my Core yearly subscription purchased on "
+            "2026-09-30 for 23500 cents (USD). Your policy allows subscription "
+            "payments to be refunded within 30 days. Subscription fee only."
         )
         cur = conn.execute(
             """

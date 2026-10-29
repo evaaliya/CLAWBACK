@@ -1,6 +1,6 @@
 {
   "session": "2026-10-29 live RECORDED_MODE=false",
-  "note": "SoundHub claim used recorded search fixture after live Tavily probe (5 irrelevant hits for fictional merchant).",
+  "note": "Claim merchant is Replit; policy via Tavily / recorded search (merchant-matched).",
   "rows": [
     {
       "model": "nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B",

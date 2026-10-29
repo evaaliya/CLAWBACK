@@ -12,12 +12,12 @@ from app.search.fake import FakeSearch
 from app.skill_forge.tools import find_skill, run_skill, save_skill
 
 
-SOUNDHUB_SOURCES = [
+REPLIT_SOURCES = [
     {
-        "title": "SoundHub Returns and Refunds (fixture)",
-        "url": "https://example.com/soundhub/returns",
+        "title": "Am I eligible for a refund? | Replit",
+        "url": "https://replit.com/help/answers/refunds",
         "excerpt": (
-            "Unused or lightly used items can be returned within 30 days "
+            "Subscription payments may be refunded within 30 days "
             "of purchase for a full refund."
         ),
     }
@@ -25,14 +25,14 @@ SOUNDHUB_SOURCES = [
 
 CLAIM_DRAFT = {
     "text": (
-        "Please refund my Wireless over-ear headphones SH-700 purchased on "
+        "Please refund my Core yearly subscription purchased on "
         "2026-09-30 for 23500 cents (USD)."
     ),
     "citations": [
         {
-            "title": "SoundHub Returns and Refunds (fixture)",
-            "url": "https://example.com/soundhub/returns",
-            "excerpt": "Unused or lightly used items can be returned within 30 days.",
+            "title": "Am I eligible for a refund? | Replit",
+            "url": "https://replit.com/help/answers/refunds",
+            "excerpt": "Subscription payments may be refunded within 30 days.",
         }
     ],
 }
@@ -94,7 +94,7 @@ def test_agent_log_complete(seeded_conn, clock: Clock) -> None:
         """
         INSERT INTO purchases
             (merchant, item, date, amount_cents, currency, return_deadline, status)
-        VALUES ('SoundHub', 'Wireless over-ear headphones SH-700',
+        VALUES ('Replit', 'Core yearly subscription',
                 '2026-09-30', 23500, 'USD', '2026-10-30', 'open')
         """
     )
@@ -106,7 +106,7 @@ def test_agent_log_complete(seeded_conn, clock: Clock) -> None:
         }
     )
     search = FakeSearch(
-        recordings={"SoundHub return refund policy US": SOUNDHUB_SOURCES}
+        recordings={"Replit return refund policy US": REPLIT_SOURCES}
     )
     prepare_claim(
         conn,

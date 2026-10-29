@@ -1,15 +1,15 @@
 {
-  "_note": "Expected purchase after ingest. return_deadline is seeded because the fictional SoundHub policy is a cached fixture; see demo/policies/.",
+  "_note": "Expected purchase after ingest. return_deadline matches Replit's 30-day subscription refund window (purchase 2026-09-30 → 2026-10-30).",
   "purchases": [
     {
-      "merchant": "SoundHub",
-      "item": "Wireless over-ear headphones SH-700",
+      "merchant": "Replit",
+      "item": "Core yearly subscription",
       "date": "2026-09-30",
       "amount_cents": 23500,
       "currency": "USD",
       "return_deadline": "2026-10-30",
       "warranty_until": null,
-      "receipt_path": "demo/receipts/soundhub-order-48213.txt",
+      "receipt_path": "demo/receipts/replit-yearly-48213.txt",
       "status": "open"
     }
   ]

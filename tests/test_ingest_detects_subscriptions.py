@@ -66,7 +66,7 @@ def _demo_normalize_recordings(demo_dir: Path) -> dict:
         "CLOUDNEST": ("CloudNest", "subscription"),
         "FITPULSE": ("FitPulse", "subscription"),
         "TUNEBOX": ("TuneBox", "subscription"),
-        "SOUNDHUB": ("SoundHub", "purchase"),
+        "REPLIT": ("Replit", "purchase"),
         "GREENMART": ("GreenMart", "other"),
         "CITY TRANSIT": ("City Transit", "other"),
     }

@@ -16,7 +16,8 @@ def test_scan_idempotent(conn, clock: Clock) -> None:
         """
         INSERT INTO purchases
             (merchant, item, date, amount_cents, currency, return_deadline, status)
-        VALUES ('SoundHub', 'Headphones', '2026-09-30', 23500, 'USD', ?, 'open')
+        VALUES ('Replit', 'Core yearly subscription',
+                '2026-09-30', 23500, 'USD', ?, 'open')
         """,
         (deadline,),
     )

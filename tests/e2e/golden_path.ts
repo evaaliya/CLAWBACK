@@ -2,7 +2,7 @@ import { expect, type APIRequestContext, type Page } from "@playwright/test";
 import fs from "node:fs";
 import path from "node:path";
 
-const RECEIPT = path.resolve("demo/receipts/soundhub-order-48213.txt");
+const RECEIPT = path.resolve("demo/receipts/replit-yearly-48213.txt");
 
 /** Abort any request that leaves the app origin (T20 offline). */
 export async function blockExternalNetwork(page: Page, baseURL: string) {
@@ -64,12 +64,12 @@ export async function runGoldenPath(
   await resetDemo(request);
   await blockExternalNetwork(page, baseURL);
 
-  // Receipt ingest uses FakeLLM recording (receipt:soundhub-order-48213.txt).
+  // Receipt ingest uses FakeLLM recording (receipt:replit-yearly-48213.txt).
   const receiptBuf = fs.readFileSync(RECEIPT);
   const ingest = await request.post("/api/ingest/receipts", {
     multipart: {
       files: {
-        name: "soundhub-order-48213.txt",
+        name: "replit-yearly-48213.txt",
         mimeType: "text/plain",
         buffer: receiptBuf,
       },

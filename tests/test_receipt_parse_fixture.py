@@ -1,4 +1,4 @@
-"""T3 — Receipt becomes the SoundHub purchase; bad JSON → needs_review."""
+"""T3 — Receipt becomes the Replit purchase; bad JSON → needs_review."""
 
 from __future__ import annotations
 
@@ -10,9 +10,9 @@ from app.ingest.receipts import parse_and_store_receipt
 from app.llm.fake import FakeLLM
 
 
-SOUNDHUB_PARSED = {
-    "merchant": "SoundHub",
-    "item": "Wireless over-ear headphones SH-700",
+REPLIT_PARSED = {
+    "merchant": "Replit",
+    "item": "Core yearly subscription",
     "date": "2026-09-30",
     "amount_cents": 23500,
     "currency": "USD",
@@ -23,11 +23,11 @@ SOUNDHUB_PARSED = {
 
 
 def test_receipt_parse_fixture(conn, demo_dir: Path, clock: Clock) -> None:
-    receipt_path = demo_dir / "receipts" / "soundhub-order-48213.txt"
+    receipt_path = demo_dir / "receipts" / "replit-yearly-48213.txt"
     text = receipt_path.read_text(encoding="utf-8")
     llm = FakeLLM(
         recordings={
-            "receipt:soundhub-order-48213.txt": json.dumps(SOUNDHUB_PARSED),
+            "receipt:replit-yearly-48213.txt": json.dumps(REPLIT_PARSED),
         }
     )
 
@@ -37,13 +37,13 @@ def test_receipt_parse_fixture(conn, demo_dir: Path, clock: Clock) -> None:
         llm=llm,
         clock=clock,
         receipt_path=str(receipt_path),
-        recording_key="receipt:soundhub-order-48213.txt",
+        recording_key="receipt:replit-yearly-48213.txt",
     )
     conn.commit()
 
     assert purchase["amount_cents"] == 23500
     assert purchase["return_deadline"] == "2026-10-30"
-    assert purchase["merchant"] == "SoundHub"
+    assert purchase["merchant"] == "Replit"
     assert purchase["needs_review"] is False
 
     row = conn.execute(
@@ -64,7 +64,7 @@ def test_receipt_parse_fixture(conn, demo_dir: Path, clock: Clock) -> None:
         (purchase["id"],),
     ).fetchone()
     assert doc is not None
-    assert "SOUNDHUB" in doc["text"]
+    assert "REPLIT" in doc["text"]
     assert "48213" in doc["text"]
 
 

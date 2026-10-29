@@ -14,11 +14,11 @@ from app.hardening.http import reject
 
 router = APIRouter(tags=["demo"])
 
-_SOUNDHUB_SOURCES = [
+_REPLIT_SOURCES = [
     {
-        "title": "SoundHub Returns and Refunds (fixture)",
-        "url": "https://example.com/soundhub/returns",
-        "excerpt": "Unused items can be returned within 30 days for a full refund.",
+        "title": "Am I eligible for a refund? | Replit",
+        "url": "https://replit.com/help/answers/refunds",
+        "excerpt": "Subscription payments may be refunded within 30 days of purchase.",
     }
 ]
 
@@ -64,7 +64,7 @@ def post_demo_reset(request: Request) -> dict:
 
 @router.post("/demo/seed-claim")
 def post_demo_seed_claim(request: Request) -> dict:
-    """Insert a SoundHub draft claim for UI card tests (no LLM)."""
+    """Insert a Replit draft claim for UI card tests (no LLM)."""
     settings = request.app.state.settings
     clock = request.app.state.clock
     conn = connect(settings.database_file())
@@ -73,14 +73,14 @@ def post_demo_seed_claim(request: Request) -> dict:
             """
             SELECT c.id FROM claims c
             JOIN purchases p ON p.id = c.purchase_id
-            WHERE p.merchant = 'SoundHub' AND c.status = 'draft'
+            WHERE p.merchant = 'Replit' AND c.status = 'draft'
             """
         ).fetchone()
         if existing:
             return {"ok": True, "claim_id": int(existing["id"]), "seeded": False}
 
         purchase = conn.execute(
-            "SELECT id FROM purchases WHERE merchant = 'SoundHub' LIMIT 1"
+            "SELECT id FROM purchases WHERE merchant = 'Replit' LIMIT 1"
         ).fetchone()
         if purchase is None:
             cur = conn.execute(
@@ -88,7 +88,7 @@ def post_demo_seed_claim(request: Request) -> dict:
                 INSERT INTO purchases
                     (merchant, item, date, amount_cents, currency,
                      return_deadline, status)
-                VALUES ('SoundHub', 'Wireless over-ear headphones SH-700',
+                VALUES ('Replit', 'Core yearly subscription',
                         '2026-09-30', 23500, 'USD', '2026-10-30', 'open')
                 """
             )
@@ -97,16 +97,16 @@ def post_demo_seed_claim(request: Request) -> dict:
             purchase_id = int(purchase["id"])
 
         draft = (
-            "Please refund my Wireless over-ear headphones SH-700 purchased on "
-            "2026-09-30 for 23500 cents (USD). Your return policy allows a "
-            "full refund within 30 days."
+            "Please refund my Core yearly subscription purchased on "
+            "2026-09-30 for 23500 cents (USD). Your policy allows subscription "
+            "payments to be refunded within 30 days. Subscription fee only."
         )
         cur = conn.execute(
             """
             INSERT INTO claims (purchase_id, draft_text, sources_json, status)
             VALUES (?, ?, ?, 'draft')
             """,
-            (purchase_id, draft, json.dumps(_SOUNDHUB_SOURCES, ensure_ascii=False)),
+            (purchase_id, draft, json.dumps(_REPLIT_SOURCES, ensure_ascii=False)),
         )
         conn.commit()
         claim_id = int(cur.lastrowid)

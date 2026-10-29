@@ -100,6 +100,7 @@ def prepare_claim(
             draft=draft.model_dump(),
             purchase=purchase,
             session_sources=sources,
+            as_of=clock.today(),
         )
         super_ok, super_reasons = super_validate(
             conn,

@@ -57,22 +57,22 @@
     ]
   },
   "claim:draft": {
-    "text": "Please refund my Wireless over-ear headphones SH-700 purchased on 2026-09-30 for 23500 cents (USD). Your policy allows unused items to be returned within 30 days for a full refund.",
+    "text": "I am requesting a refund for my Core yearly subscription purchased on 2026-09-30 for 23500 cents (USD). Per your refund policy, subscription payments may be refunded within 30 days of purchase. I am within this eligibility window and am requesting a refund of the subscription fee only.",
     "citations": [
       {
-        "title": "SoundHub Returns and Refunds (fixture)",
-        "url": "https://example.com/soundhub/returns",
-        "excerpt": "Unused or lightly used items can be returned within 30 days of purchase for a full refund to the original payment method. Contact support with your order number."
+        "title": "Am I eligible for a refund? | Replit",
+        "url": "https://replit.com/help/answers/refunds",
+        "excerpt": "You may be able to get a refund for a subscription payment. Subscription payments may be refunded within 30 days of purchase. For a monthly subscription, only the latest payment may qualify. A yearly subscription cannot be refunded after 30 days. Agent and AI usage charges, and domain purchases, cannot be refunded."
       }
     ]
   },
   "claim:draft:retry": {
-    "text": "Please refund my Wireless over-ear headphones SH-700 purchased on 2026-09-30 for 23500 cents (USD). Your policy allows unused items to be returned within 30 days for a full refund.",
+    "text": "I am requesting a refund for my Core yearly subscription purchased on 2026-09-30 for 23500 cents (USD). Per your refund policy, subscription payments may be refunded within 30 days of purchase. I am within this eligibility window and am requesting a refund of the subscription fee only.",
     "citations": [
       {
-        "title": "SoundHub Returns and Refunds (fixture)",
-        "url": "https://example.com/soundhub/returns",
-        "excerpt": "Unused or lightly used items can be returned within 30 days of purchase for a full refund to the original payment method. Contact support with your order number."
+        "title": "Am I eligible for a refund? | Replit",
+        "url": "https://replit.com/help/answers/refunds",
+        "excerpt": "You may be able to get a refund for a subscription payment. Subscription payments may be refunded within 30 days of purchase. For a monthly subscription, only the latest payment may qualify. A yearly subscription cannot be refunded after 30 days. Agent and AI usage charges, and domain purchases, cannot be refunded."
       }
     ]
   },
@@ -80,9 +80,9 @@
     "ok": true,
     "reasons": []
   },
-  "receipt:soundhub-order-48213.txt": {
-    "merchant": "SoundHub",
-    "item": "Wireless over-ear headphones SH-700",
+  "receipt:replit-yearly-48213.txt": {
+    "merchant": "Replit",
+    "item": "Core yearly subscription",
     "date": "2026-09-30",
     "amount_cents": 23500,
     "currency": "USD",
@@ -110,8 +110,8 @@
     "merchant_norm": "TuneBox",
     "category": "subscription"
   },
-  "normalize:SOUNDHUB ONLINE ORDER #48213": {
-    "merchant_norm": "SoundHub",
+  "normalize:REPLIT*CORE YEARLY SUB #48213": {
+    "merchant_norm": "Replit",
     "category": "purchase"
   },
   "normalize:GREENMART GROCERY #212": {

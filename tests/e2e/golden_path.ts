@@ -53,6 +53,8 @@ async function cancelMerchant(page: Page, merchant: string) {
 /**
  * Golden Path against a recorded-mode server: $96 → cancels + claim → $847.
  * FitPulse is active (not unused); cancelled via chat “cancel FitPulse” (skill path).
+ * TuneBox stays in the seeded subscriptions as an extra active sub — it is NOT
+ * cancelled here (outside savings_plan.json; would break the $847 total).
  */
 export async function runGoldenPath(
   page: Page,

@@ -10,11 +10,13 @@ All bank, mail and merchant systems are emulated. Nothing is sent to a real comp
 
 ## How a run looks
 
-1. Upload a statement and receipts. The agent finds your subscriptions and flags the unused ones.
+1. Upload a statement and receipts. The agent finds your subscriptions and flags the unused ones (90+ days without activity).
 2. An on-demand deadline scan warns that a return window closes in a few days and offers to prepare a claim.
 3. The agent searches the store's current policy (Tavily), drafts a claim with source links, and shows it. You press *Send*.
-4. You ask to cancel a subscription. The agent reuses a skill it already learned and does it in seconds.
-5. The counter shows projected annual savings for cancellations, plus refund amounts for claims.
+4. You ask to cancel a subscription. The first time Ultra plans the steps; afterwards a saved skill replays without the large model.
+5. The counter shows projected annual savings for cancellations (monthly × 12), plus refund amounts for claims. Totals come only from stored events.
+
+The demo dataset and the **$847** counter are fictional. The refund policy in the demo is fetched from the real merchant (Replit) via Tavily when live keys are set.
 
 ## How we use NVIDIA Nemotron on Nebius Token Factory
 
@@ -70,8 +72,8 @@ make recorded            # offline Golden Path — http://localhost:8000
 | `make seed` | Load the demo dataset from `demo/` into SQLite |
 | `make demo` | Reset the database to the seeded demo state |
 | `make scan` | Run the deadline scan once (on demand) |
-| `make test` | Unit and integration tests |
-| `make e2e` | Playwright end-to-end tests in recorded mode |
+| `make test` | Unit and integration tests (32) |
+| `make e2e` | Playwright end-to-end tests in recorded mode (3) |
 | `make verify` | pytest + e2e + report under `reports/` |
 | `make docker-smoke` | Build `linux/amd64` image, run recorded container, health + Playwright |
 
@@ -110,7 +112,7 @@ app/        FastAPI app: api/, ingest/, deadline_watcher/, claim_writer/, skill_
 jobs/       scan.py (on-demand / Serverless Job entrypoint)
 scripts/    demo.py, verify_report.py, deploy_nebius.sh, deploy_scan_job.sh
 tests/      pytest tests and Playwright e2e tests
-demo/       statement, receipts, usage, seed history, policy fixtures, recorded/
+demo/       statement, receipts, usage, seed skills/savings plan, recorded/
 ```
 
 The demo counter is defined by `demo/savings_plan.json` (84700 cents / 360 minutes).
